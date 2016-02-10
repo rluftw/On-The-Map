@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9532" systemVersion="15D21" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9530"/>
+    </dependencies>
+    <scenes>
+        <!--Login View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="LoginViewController" customModule="on_the_map" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
+                        <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VDH-0f-Uca">
+                                <rect key="frame" x="281" y="285" width="38" height="30"/>
+                                <state key="normal" title="Login"/>
+                                <connections>
+                                    <action selector="login:" destination="BYZ-38-t0r" eventType="touchUpInside" id="8Yq-fp-5l7"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kut-gn-bhy">
+                                <rect key="frame" x="276" y="323" width="48" height="30"/>
+                                <state key="normal" title="Logout"/>
+                                <connections>
+                                    <action selector="logout:" destination="BYZ-38-t0r" eventType="touchUpInside" id="7ze-mG-oYi"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="r9O-SB-lLF">
+                                <rect key="frame" x="228" y="361" width="143" height="30"/>
+                                <state key="normal" title="Get Public User Data"/>
+                                <connections>
+                                    <action selector="getUserData:" destination="BYZ-38-t0r" eventType="touchUpInside" id="YfH-Eh-2w3"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="r9O-SB-lLF" firstAttribute="centerX" secondItem="kut-gn-bhy" secondAttribute="centerX" id="Htc-vm-NyN"/>
+                            <constraint firstItem="r9O-SB-lLF" firstAttribute="top" secondItem="kut-gn-bhy" secondAttribute="bottom" constant="8" symbolic="YES" id="QWR-vv-SZc"/>
+                            <constraint firstItem="VDH-0f-Uca" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="S7Z-Fa-NND"/>
+                            <constraint firstItem="kut-gn-bhy" firstAttribute="top" secondItem="VDH-0f-Uca" secondAttribute="bottom" constant="8" symbolic="YES" id="aej-53-oPb"/>
+                            <constraint firstItem="kut-gn-bhy" firstAttribute="centerX" secondItem="VDH-0f-Uca" secondAttribute="centerX" id="eBr-nX-1gn"/>
+                            <constraint firstItem="VDH-0f-Uca" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="xBK-UY-lM0"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+        </scene>
+    </scenes>
+</document>
