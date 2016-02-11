@@ -12,7 +12,16 @@ import Foundation
 extension UdacityClient {
     func loginWithUserName(username: String, password: String) {
         // Create the JSON for the HTTP body
-        let jsonBody = "{\(JSONBodyKeys.Udacity): {\(JSONBodyKeys.Username): \(username), \(JSONBodyKeys.Password): \(password)}}"
+        // NOTE: This is a very messy format, I've provided a cleaner way to approach this.
+        let jsonBody = "{\"\(JSONBodyKeys.Domain)\": {\"\(JSONBodyKeys.Username)\": \"\(username)\", \"\(JSONBodyKeys.Password)\": \"\(password)\" }}"
+        
+        /*
+            Using a dictionary to write the jsonBody (Cleaner)
+            =================================================
+        
+            let userinfo : [String: String] =  [JSONBodyKeys.Username : username, JSONBodyKeys.Password : password]
+            let jsonBody : [String: AnyObject] = [JSONBodyKeys.Domain: userinfo]
+        */
         
         // Call the task to be performed
         taskForPOSTMethod(Methods.Session, jsonBody: jsonBody) { (result, error) -> Void in
@@ -23,9 +32,11 @@ extension UdacityClient {
             }
             
             // Store ID
-            let result = result as! [String: AnyObject]
-            let account = result["account"] as! [String: AnyObject]
-            self.userID = account["key"] as! String
+            if let account = result[JSONResponseKeys.Account] as? [String: AnyObject] {
+                self.userID = account[JSONResponseKeys.AccountKey] as? String
+            } else {
+                //TODO: Do something if there's no Key!
+            }
             
             // Do other stuff like print the result
             

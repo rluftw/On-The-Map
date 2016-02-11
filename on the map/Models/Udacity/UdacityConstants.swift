@@ -11,7 +11,7 @@ import Foundation
 extension UdacityClient {
     struct Constants {
         static let Scheme = "https"
-        static let Host = "udacity.com"
+        static let Host = "www.udacity.com"
         static let Path = "/api"
     }
     
@@ -34,7 +34,7 @@ extension UdacityClient {
     }
     
     struct JSONBodyKeys {
-        static let Udacity = "udacity"
+        static let Domain = "udacity"
         static let Username = "username"
         static let Password = "password"
     }

@@ -31,19 +31,33 @@ extension UdacityClient {
 
     
         1. Method name - /session
-        2. HTTPBody structured as JSON
+        2. HTTPBody structured as a dictionary
     
         Current methods that uses POST request: /session
     */
+    
+/*    
+    Using a dictionary to write the jsonBody (Cleaner)
+    ==================================================
+    func taskForPOSTMethod(method: String, jsonBody: [String: AnyObject], postRequestCompletionHandler: (result: AnyObject!, error: NSError?) -> Void) {
+*/
+  
     func taskForPOSTMethod(method: String, jsonBody: String, postRequestCompletionHandler: (result: AnyObject!, error: NSError?) -> Void) {
-        
+
         // Create the Request object
-        let request = NSMutableURLRequest(URL: udacityURLForParameters(method))
+        let request = NSMutableURLRequest(URL: udacityURLWithMethod(method))
         request.HTTPMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.HTTPBody = jsonBody.dataUsingEncoding(NSUTF8StringEncoding)
-        
+
+        /*
+            Using a dictionary to write the jsonBody (Cleaner)
+            ==================================================
+            do {
+                request.HTTPBody = try! NSJSONSerialization.dataWithJSONObject(jsonBody, options: .PrettyPrinted)
+            }
+        */
         
         // Build the task
         let task = session.dataTaskWithRequest(request) { (data, response, error) -> Void in
@@ -60,6 +74,8 @@ extension UdacityClient {
             }
             
             // Check for a valid response type (2XX)
+            print((response as? NSHTTPURLResponse)?.statusCode)
+            
             guard let statusCode = (response as? NSHTTPURLResponse)?.statusCode where statusCode <= 299 && statusCode >= 200 else {
                 sendError("Your request returned a status code other than 2xx!")
                 return
@@ -72,7 +88,7 @@ extension UdacityClient {
             }
             
             // Work with the data
-            self.convertDataWithCompletionHandler(data, completionHandler: postRequestCompletionHandler)
+            self.parseJSONWithCompletionHandler(data, completionHandler: postRequestCompletionHandler)
         }
         
         // Start the task
@@ -89,7 +105,7 @@ extension UdacityClient {
 
     func taskForDELETEMethod(method: String, deleteRequestCompletionHandler: (result: AnyObject!, error: NSError?) -> Void) -> NSURLSessionDataTask {
         // Create the Request object
-        let request = NSMutableURLRequest(URL: udacityURLForParameters(method))
+        let request = NSMutableURLRequest(URL: udacityURLWithMethod(method))
         request.HTTPMethod = "DELETE"
         
         // Retrieve the shared cookie storage instance.
@@ -133,7 +149,7 @@ extension UdacityClient {
             }
             
             // Work with the data
-            self.convertDataWithCompletionHandler(data, completionHandler: deleteRequestCompletionHandler)
+            self.parseJSONWithCompletionHandler(data, completionHandler: deleteRequestCompletionHandler)
         }
         
         // Start the task
@@ -153,7 +169,9 @@ extension UdacityClient {
     func taskForGETRequest(method: String, getRequestCompletionHandler: (result: AnyObject!, error: NSError?) -> Void) {
         
         // Create the Request object
-        let request = NSMutableURLRequest(URL: udacityURLForParameters(replacePlaceHolderInMethod(Methods.UserData, withKey: URLKeys.UserID, value: userID)))
+        let request = NSMutableURLRequest(URL: udacityURLWithMethod(replacePlaceHolderInMethod(Methods.UserData, withKey: URLKeys.UserID, value: userID)))
+        
+        print(request)
         
         // Build the task
         let task = session.dataTaskWithRequest(request) { (data, response, error) -> Void in
@@ -183,7 +201,7 @@ extension UdacityClient {
             }
             
             // Work with the data
-            self.convertDataWithCompletionHandler(data, completionHandler: getRequestCompletionHandler)
+            self.parseJSONWithCompletionHandler(data, completionHandler: getRequestCompletionHandler)
         }
         
         task.resume()
@@ -191,18 +209,16 @@ extension UdacityClient {
     
     // MARK: - Helper methods
     
-    func udacityURLForParameters(method: String?) -> NSURL {
+    func udacityURLWithMethod(method: String?) -> NSURL {
         let components = NSURLComponents()
         components.scheme = Constants.Scheme
         components.host = Constants.Host
         components.path = Constants.Path + (method ?? "")
         
-        print(components.URL!)
-        
         return components.URL!
     }
     
-    func convertDataWithCompletionHandler(data: NSData, completionHandler: (result: AnyObject!, error: NSError?) -> Void) {
+    func parseJSONWithCompletionHandler(data: NSData, completionHandler: (result: AnyObject!, error: NSError?) -> Void) {
         var parsedResults: AnyObject!
         do {
             /*
@@ -213,9 +229,9 @@ extension UdacityClient {
             parsedResults = try NSJSONSerialization.JSONObjectWithData(newData, options: .AllowFragments)
         } catch {
             let userInfo = [NSLocalizedDescriptionKey : "Could not parse the data as JSON: '\(data)'"]
-            completionHandler(result: nil, error: NSError(domain: "convertDataWithCompletionHandler", code: 1, userInfo: userInfo))
+            completionHandler(result: nil, error: NSError(domain: "parseJSONWithCompletionHandler", code: 1, userInfo: userInfo))
         }
-        
+                
         completionHandler(result: parsedResults, error: nil)
     }
     
