@@ -38,4 +38,13 @@ extension UdacityClient {
         static let Username = "username"
         static let Password = "password"
     }
+    
+    struct DataFormat {
+        static let JSON = "application/json"
+    }
+    
+    struct HTTPHeaderField {
+        static let Accept = "Accept"
+        static let ContentType = "Content-Type"
+    }
 }

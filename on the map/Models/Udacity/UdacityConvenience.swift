@@ -10,37 +10,28 @@ import Foundation
 
 // Convenience methods for Udacity API
 extension UdacityClient {
-    func loginWithUserName(username: String, password: String) {
+    // MARK - Authentication
+    
+    func loginWithUserName(username: String, password: String, completionHandler: (() -> Void)) {
+        
         // Create the JSON for the HTTP body
-        // NOTE: This is a very messy format, I've provided a cleaner way to approach this.
-        let jsonBody = "{\"\(JSONBodyKeys.Domain)\": {\"\(JSONBodyKeys.Username)\": \"\(username)\", \"\(JSONBodyKeys.Password)\": \"\(password)\" }}"
-        
-        /*
-            Using a dictionary to write the jsonBody (Cleaner)
-            =================================================
-        
-            let userinfo : [String: String] =  [JSONBodyKeys.Username : username, JSONBodyKeys.Password : password]
-            let jsonBody : [String: AnyObject] = [JSONBodyKeys.Domain: userinfo]
-        */
-        
+        let userinfo : [String: String] =  [JSONBodyKeys.Username : username, JSONBodyKeys.Password : password]
+        let jsonBody : [String: AnyObject] = [JSONBodyKeys.Domain: userinfo]
+
         // Call the task to be performed
         taskForPOSTMethod(Methods.Session, jsonBody: jsonBody) { (result, error) -> Void in
-            
-            // Check for any errors first
+            // Check for any errors first - probably means that there was no network
             guard (error == nil) else {
+                self.completeLogin(completionHandler)
                 return
             }
             
             // Store ID
             if let account = result[JSONResponseKeys.Account] as? [String: AnyObject] {
                 self.userID = account[JSONResponseKeys.AccountKey] as? String
-            } else {
-                //TODO: Do something if there's no Key!
             }
             
-            // Do other stuff like print the result
-            
-            print(result)
+            self.completeLogin(completionHandler)
         }
     }
     
@@ -52,7 +43,7 @@ extension UdacityClient {
                 return
             }
             
-            // Do stuff like print the result
+            // Do other stuff like print the result
             print(result)
         }
     }
@@ -67,8 +58,16 @@ extension UdacityClient {
                 return
             }
             
-            // Do stuff like print the result
+            // Do other stuff like print the result
             print(result)
         }
+    }
+    
+    // MARK: - Helper methods
+    
+    func completeLogin(completionHandler: (() -> Void)) {
+        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+            completionHandler()
+        })
     }
 }

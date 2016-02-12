@@ -9,8 +9,12 @@
 import Foundation
 
 class UdacityClient {
-    let session = NSURLSession.sharedSession()
+    let session: NSURLSession
     var userID: String!
+    
+    init() {
+        session = NSURLSession.sharedSession()
+    }
     
     class func sharedInstance() -> UdacityClient {
         struct Singleton {
@@ -23,41 +27,20 @@ class UdacityClient {
 
 // NOTE: The Udacity API's does not use any parameters
 extension UdacityClient {
-    // MARK: - Authentication
+    // MARK: - HTTP Request
     
-    /*
-        The Udacity API POST method takes the following:
-        
-
-    
-        1. Method name - /session
-        2. HTTPBody structured as a dictionary
-    
-        Current methods that uses POST request: /session
-    */
-    
-/*    
-    Using a dictionary to write the jsonBody (Cleaner)
-    ==================================================
+    // The Udacity login API uses the POST HTTP method which takes a jsonBody and a method
     func taskForPOSTMethod(method: String, jsonBody: [String: AnyObject], postRequestCompletionHandler: (result: AnyObject!, error: NSError?) -> Void) {
-*/
-  
-    func taskForPOSTMethod(method: String, jsonBody: String, postRequestCompletionHandler: (result: AnyObject!, error: NSError?) -> Void) {
 
         // Create the Request object
         let request = NSMutableURLRequest(URL: udacityURLWithMethod(method))
         request.HTTPMethod = "POST"
-        request.addValue("application/json", forHTTPHeaderField: "Accept")
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.HTTPBody = jsonBody.dataUsingEncoding(NSUTF8StringEncoding)
-
-        /*
-            Using a dictionary to write the jsonBody (Cleaner)
-            ==================================================
-            do {
-                request.HTTPBody = try! NSJSONSerialization.dataWithJSONObject(jsonBody, options: .PrettyPrinted)
-            }
-        */
+        request.addValue(DataFormat.JSON, forHTTPHeaderField: HTTPHeaderField.Accept)
+        request.addValue(DataFormat.JSON, forHTTPHeaderField: HTTPHeaderField.ContentType)
+        
+        do {
+            request.HTTPBody = try? NSJSONSerialization.dataWithJSONObject(jsonBody, options: .PrettyPrinted)
+        }
         
         // Build the task
         let task = session.dataTaskWithRequest(request) { (data, response, error) -> Void in
@@ -69,14 +52,18 @@ extension UdacityClient {
             
             // Check if there's an error
             guard error == nil else {
-                sendError("There was an error with your request: \(error)")
+                // Alert user that there is a network problem
+                self.postNotification("NetworkFailure")
+                
+                sendError("There was an error with your request: \(error!.localizedDescription)")
                 return
             }
             
             // Check for a valid response type (2XX)
-            print((response as? NSHTTPURLResponse)?.statusCode)
-            
             guard let statusCode = (response as? NSHTTPURLResponse)?.statusCode where statusCode <= 299 && statusCode >= 200 else {
+                // Alert user that the the credentials are invalid
+                self.postNotification("CredentialFailure")
+                
                 sendError("Your request returned a status code other than 2xx!")
                 return
             }
@@ -89,20 +76,15 @@ extension UdacityClient {
             
             // Work with the data
             self.parseJSONWithCompletionHandler(data, completionHandler: postRequestCompletionHandler)
+            self.postNotification("CompleteLogin")
         }
         
         // Start the task
         task.resume()
     }
     
-    /*
-        The Udacity API DELETE method takes the following:
-        
-        1. Method name - /session
-    
-        Current methods that uses POST request: /session
-    */
 
+    // The Udacity logout API uses the DELETE http method which takes only a method
     func taskForDELETEMethod(method: String, deleteRequestCompletionHandler: (result: AnyObject!, error: NSError?) -> Void) -> NSURLSessionDataTask {
         // Create the Request object
         let request = NSMutableURLRequest(URL: udacityURLWithMethod(method))
@@ -158,14 +140,7 @@ extension UdacityClient {
         return task
     }
     
-    /*
-        The Udacity API GET method takes the following:
-    
-        1. Method name - /users/<user_id>
-        
-        Current methods that uses GET request: /users/<user_id>
-    */
- 
+    // The Udacity logout API uses the GET http method which takes only a method (the method may need substitution)
     func taskForGETRequest(method: String, getRequestCompletionHandler: (result: AnyObject!, error: NSError?) -> Void) {
         
         // Create the Request object
@@ -209,6 +184,7 @@ extension UdacityClient {
     
     // MARK: - Helper methods
     
+    // None of the API takes in parameters, therefore the 'parameters' parameter is omitted
     func udacityURLWithMethod(method: String?) -> NSURL {
         let components = NSURLComponents()
         components.scheme = Constants.Scheme
@@ -222,8 +198,8 @@ extension UdacityClient {
         var parsedResults: AnyObject!
         do {
             /*
-            All responses from Udacity API skips 5 characters of response
-            This is for security purposes
+                All responses from Udacity API skips 5 characters of response
+                This is for security purposes
             */
             let newData = data.subdataWithRange(NSMakeRange(5, data.length - 5))
             parsedResults = try NSJSONSerialization.JSONObjectWithData(newData, options: .AllowFragments)
@@ -245,7 +221,12 @@ extension UdacityClient {
         
         return method.stringByReplacingCharactersInRange(range, withString: value)
     }
-
+    
+    func postNotification(notificationName: String) {
+        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+            NSNotificationCenter.defaultCenter().postNotificationName(notificationName, object: nil, userInfo: nil)
+        })
+    }
 }
 
 

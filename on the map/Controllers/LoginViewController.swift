@@ -8,31 +8,95 @@
 
 import UIKit
 
-class LoginViewController: UIViewController {
+class LoginViewController: UIViewController, UITextFieldDelegate {
+    
+    @IBOutlet weak var usernameTextField: UITextField!
+    @IBOutlet weak var passwordTextField: UITextField!
+    @IBOutlet weak var loginButton: UIButton!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     let client = UdacityClient.sharedInstance()
     
+    // MARK: - Viewcontroller Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
-    }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+        
+        usernameTextField.delegate = self
+        passwordTextField.delegate = self
     }
     
-    @IBAction func login(sender: AnyObject) {
-        client.loginWithUserName("username", password: "password")
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "completeLogin:", name: "CompleteLogin", object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "networkFailureHandler:", name: "NetworkFailure", object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "credentialFailureHandler:", name: "CredentialFailure", object: nil)
     }
     
-    @IBAction func logout(sender: AnyObject) {
-        client.logout()
+    override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: "CompleteLogin", object: nil)
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: "NetworkFailure", object: nil)
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: "CredentialFailure", object: nil)
     }
     
-    @IBAction func getUserData(sender: AnyObject) {
-        client.getUserPublicData()
+    // MARK: - Textfield Delegates
+    
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        
+        return true
     }
-
+    
+    // MARK: - Login methods
+    
+    @IBAction func login(sender: UIButton) {
+        view.endEditing(true)
+        
+        if usernameTextField.text == "" || passwordTextField.text == "" {
+            
+            // Alert the user and prompt for a username and password
+            let alert = UIAlertController(title: "Login", message: "Please login with your Udacity Credentials", preferredStyle: .Alert)
+            alert.addAction(UIAlertAction(title: "Ok", style: .Default, handler: nil))
+            
+            presentViewController(alert, animated: true, completion: nil)
+        } else {
+            toggleUI()
+            client.loginWithUserName(usernameTextField.text!, password: passwordTextField.text!) {
+                self.toggleUI()
+            }
+        }
+    }
+    
+    // MARK: - Selector methods
+    
+    func networkFailureHandler(notification: NSNotification) {
+        let alert = UIAlertController(title: "Network Error", message: "Please check your network connection.", preferredStyle: .Alert)
+        alert.addAction(UIAlertAction(title: "Ok", style: .Default, handler: nil))
+        
+        presentViewController(alert, animated: true, completion: nil)
+    }
+    
+    func credentialFailureHandler(notification: NSNotification) {
+        let alert = UIAlertController(title: "Invalid Email or Password", message: "", preferredStyle: .Alert)
+        alert.addAction(UIAlertAction(title: "Ok", style: .Default, handler: nil))
+        
+        presentViewController(alert, animated: true, completion: nil)
+    }
+    
+    func completeLogin(notification: NSNotification) {
+        let mapAndTableView = self.storyboard!.instantiateViewControllerWithIdentifier("MapAndTableView")
+        self.presentViewController(mapAndTableView, animated: true, completion: nil)
+    }
+    
+    // MARK: - Helper methods
+    
+    func toggleUI() {
+        activityIndicator.isAnimating() ? activityIndicator.stopAnimating(): activityIndicator.startAnimating()
+        loginButton.enabled = !loginButton.enabled
+        usernameTextField.enabled = !usernameTextField.enabled
+        passwordTextField.enabled = !passwordTextField.enabled
+    }
 }
