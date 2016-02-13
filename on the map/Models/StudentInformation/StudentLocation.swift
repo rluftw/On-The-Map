@@ -7,9 +7,14 @@
 //
 
 import Foundation
+import MapKit
 
 struct StudentLocation {
     var latitude: Double
     var longitude: Double
+    
+    func getCoordinates() -> CLLocationCoordinate2D {
+        return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    }
 }
 

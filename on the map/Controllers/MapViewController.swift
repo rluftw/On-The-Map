@@ -9,60 +9,160 @@
 import UIKit
 import MapKit
 
-class MapViewController: UIViewController {
-
-    var client = ParseClient.sharedInstance()
+class MapViewController: UIViewController, MKMapViewDelegate {
     
-    // TODO: Model placed here
+    var studentsInfo: [StudentInfo] {
+        return (UIApplication.sharedApplication().delegate as! AppDelegate).students
+    }
     
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var mapView: MKMapView!
+    
+    @IBOutlet weak var logoutButton: UIBarButtonItem!
+    @IBOutlet weak var postLocationButton: UIBarButtonItem!
+    @IBOutlet weak var refreshButton: UIBarButtonItem!
     
     // MARK: - Viewcontroller Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        activityIndicator.startAnimating()
-        client.getStudentLocations()
-    }
-    
-    override func viewWillAppear(animated: Bool) {
-        super.viewWillAppear(animated)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "loadCompletionHandler:", name: "StudentInfoLoadComplete", object: nil)
-    }
-    
-    override func viewWillDisappear(animated: Bool) {
-        super.viewWillDisappear(animated)
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: "StudentInfoLoadComplete", object: nil)
+        mapView.delegate = self
+        retrieveLocations()
     }
     
     // MARK: - IBAction methods
     
     @IBAction func logout(sender: AnyObject) {
-        dismissViewControllerAnimated(true, completion: nil)
+        toggleUI()
+        
+        UdacityClient.sharedInstance().logout { (success, result, error) -> Void in
+            
+            // Check if there were any errors. i.e network
+            guard (error == nil) else {
+                self.showAlert("Logout", message: error!.localizedDescription)
+                return
+            }
+            
+            if success {
+                // Clear the students array and dismiss
+                (UIApplication.sharedApplication().delegate as! AppDelegate).students = [StudentInfo]()
+                self.dismissViewControllerAnimated(true, completion: nil)
+            }
+
+            self.toggleUI()
+        }
     }
     
     @IBAction func refresh(sender: AnyObject) {
+        toggleUI()
+        retrieveLocations()
     }
     
     @IBAction func postLocation(sender: AnyObject) {
     }
     
-    // MARK: - Selector methods
+    // MARK: - Mapview delegate methods
     
-    func loadCompletionHandler(notification: NSNotification) {
-        finishLoading()
+    func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
+        let reuseIndentifier = "pin"
+        
+        var pinView = mapView.dequeueReusableAnnotationViewWithIdentifier(reuseIndentifier) as? MKPinAnnotationView
+        if pinView == nil {
+            pinView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: reuseIndentifier)
+            pinView!.canShowCallout = true
+            pinView!.pinTintColor = UIColor(red: 1.0, green: 158/255.0, blue: 0.0, alpha: 1.0)
+            pinView!.rightCalloutAccessoryView = UIButton(type: .DetailDisclosure)
+        } else {
+            pinView!.annotation = annotation
+        }
+        
+        return pinView
+    }
+    
+    func mapView(mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
+        if control == view.rightCalloutAccessoryView {
+            let app = UIApplication.sharedApplication()
+            let urlString = view.annotation!.subtitle!!
+
+            guard let url = NSURL(string: urlString) where app.canOpenURL(url) else {
+                showAlert("", message: "Invalid URL")
+                return
+            }
+
+            app.openURL(url)
+        }
     }
     
     // MARK: - Helper methods
+    
+    func retrieveLocations() {
+        ParseClient.sharedInstance().getStudentLocations { (success, result, error) -> Void in
+            
+            // Check if there were any errors. i.e network
+            guard (error == nil) else {
+                self.finishLoading()
+                self.showAlert("Refresh", message: error!.localizedDescription)
+                return
+            }
+            
+            if success {
+                // Clear the previous pins
+                let annotations = self.mapView.annotations
+                self.mapView.removeAnnotations(annotations)
+                
+                // Place the pins on the map
+                self.pinThePinsOnTheMap()
+            }
+            
+            self.finishLoading()
+        }
+    }
+    
+    func pinThePinsOnTheMap() {
+        let students = (UIApplication.sharedApplication().delegate as! AppDelegate).students
+        var annotations: [MKPointAnnotation]!
+        if students.count > 0 {
+            annotations = [MKPointAnnotation]()
+        } else {
+            return
+        }
+
+        for student in students {
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = student.studentLocation.getCoordinates()
+            annotation.title = "\(student.firstName) \(student.lastName)"
+            annotation.subtitle = student.mediaURL
+            
+            annotations.append(annotation)
+        }
+        
+        mapView.addAnnotations(annotations)
+    }
+    
+    func toggleUI() {
+        activityIndicator.isAnimating() ? self.activityIndicator.stopAnimating(): self.activityIndicator.startAnimating()
+        refreshButton.enabled = !refreshButton.enabled
+        logoutButton.enabled = !logoutButton.enabled
+        postLocationButton.enabled = !postLocationButton.enabled        
+        tabBarController!.tabBar.userInteractionEnabled = !tabBarController!.tabBar.userInteractionEnabled
+        view.userInteractionEnabled = !view.userInteractionEnabled
+    }
     
     // Allow the map to be ungreyed out.
     func finishLoading() {
         UIView.animateWithDuration(1.0, animations: { () -> Void in
             self.mapView.alpha = 1.0
         }) { _ in
-            self.activityIndicator.stopAnimating()
+            self.toggleUI()
         }
     }
+    
+    func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .Alert)
+        alert.addAction(UIAlertAction(title: "Ok", style: .Default, handler: nil))
+        
+        presentViewController(alert, animated: true, completion: nil)
+    }
+    
 }

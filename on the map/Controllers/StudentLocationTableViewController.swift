@@ -7,86 +7,140 @@
 //
 
 import UIKit
+import MapKit
 
 class StudentLocationTableViewController: UITableViewController {
-
+    
+    @IBOutlet weak var tableViewRefreshControl: UIRefreshControl!
+    @IBOutlet weak var logoutButton: UIBarButtonItem!
+    @IBOutlet weak var postLocationButton: UIBarButtonItem!
+    
+    var students: [StudentInfo] {
+        return (UIApplication.sharedApplication().delegate as! AppDelegate).students
+    }
+    
+    // MARK: - Viewcontroller Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem()
-        
+        tableViewRefreshControl.addTarget(self, action: "refresh", forControlEvents: .ValueChanged)
         tableView.tableFooterView = UIView(frame: CGRectZero)
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        
     }
-
+    
     // MARK: - Table view data source
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
-        return 1
+        return students.count
     }
 
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("studentLocation", forIndexPath: indexPath) as! StudentLocationCell
-
-        // Configure the cell...
-
+        let student = students[indexPath.row]
+        
+        cell.fullNameLabel.text = "\(student.firstName) \(student.lastName)"
+        cell.mediaURLLabel.text = "\(student.mediaURL)"
+        
         return cell
     }
+
+    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        let app = UIApplication.sharedApplication()
+        let students = (app.delegate as! AppDelegate).students
+        let student = students[indexPath.row]
+
+        guard let url = NSURL(string: student.mediaURL) where app.canOpenURL(url) else {
+            showAlert("", message: "Invalid URL")
+            return
+        }
+        
+        app.openURL(url)
+    }
     
+    // MARK: - IBAction methods
 
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
+    @IBAction func logout(sender: AnyObject) {
+        toggleUI()
+        
+        UdacityClient.sharedInstance().logout { (success, result, error) -> Void in
+            
+            // Check if there were any errors. i.e network
+            guard (error == nil) else {
+                self.showAlert("Logout", message: error!.localizedDescription)
+                return
+            }
+            
+            if success {
+                // Clear the students array and dismiss
+                (UIApplication.sharedApplication().delegate as! AppDelegate).students = [StudentInfo]()
+                self.dismissViewControllerAnimated(true, completion: nil)
+            }
+            
+            self.toggleUI()
+        }
     }
-    */
 
-    /*
-    // Override to support editing the table view.
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if editingStyle == .Delete {
-            // Delete the row from the data source
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-        } else if editingStyle == .Insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
+    @IBAction func postLocation(sender: AnyObject) {
+        refreshControl?.beginRefreshing()
     }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
-
+    
+    // MARK: - Selectors
+    
+    func refresh() {
+        toggleUI()
+        retrieveLocations()
     }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
+    
+    // MARK: - Helper methods
+    
+    func retrieveLocations() {
+        ParseClient.sharedInstance().getStudentLocations { (success, result, error) -> Void in
+            
+            // Check if there were any errors. i.e network
+            guard (error == nil) else {
+                self.finishLoading()
+                self.showAlert("Refresh", message: error!.localizedDescription)
+                return
+            }
+            
+            if success {
+                self.tableView.reloadData()
+            }
+            
+            if let refreshing = self.refreshControl?.refreshing where refreshing == true {
+                self.refreshControl?.endRefreshing()
+            }
+            
+            self.finishLoading()
+        }
     }
-    */
 
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+    func finishLoading() {
+        UIView.animateWithDuration(1.0, animations: { () -> Void in
+            self.tableView.alpha = 1.0
+        }) { _ in
+            self.toggleUI()
+        }
     }
-    */
+    
+    func toggleUI() {
+        logoutButton.enabled = !logoutButton.enabled
+        postLocationButton.enabled = !postLocationButton.enabled
+        tabBarController!.tabBar.userInteractionEnabled = !tabBarController!.tabBar.userInteractionEnabled
+        view.userInteractionEnabled = !view.userInteractionEnabled
+    }
+    
+    func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .Alert)
+        alert.addAction(UIAlertAction(title: "Ok", style: .Default, handler: nil))
+        
+        presentViewController(alert, animated: true, completion: nil)
+    }
 
 }

@@ -27,7 +27,7 @@ extension ParseClient {
     // MARK: - HTTP Request
     
     // To gather student locations
-    func taskForGetMethod(method: String, parameters:[String: AnyObject]?, getRequestCompletionHandler: (result: AnyObject!, error: NSError?) -> Void) -> NSURLSessionDataTask {
+    func taskForGetMethod(method: String, parameters:[String: AnyObject]?, getRequestCompletionHandler: (success: Bool, result: AnyObject!, error: NSError?) -> Void) -> NSURLSessionDataTask {
         
         // Make the parse request
         let request = NSMutableURLRequest(URL: parseURLWithMethod(method, parameters: parameters))
@@ -39,7 +39,7 @@ extension ParseClient {
             func sendError(error: String) {
                 print(error)
                 let userInfo = [NSLocalizedDescriptionKey: error]
-                getRequestCompletionHandler(result: nil, error: NSError(domain: "taskForGetMethod", code: 1, userInfo: userInfo))
+                getRequestCompletionHandler(success: false, result: nil, error: NSError(domain: "taskForGetMethod", code: 1, userInfo: userInfo))
             }
             
             // Check if there's an error
@@ -71,7 +71,7 @@ extension ParseClient {
     }
     
     // To post a student location
-    func taskForPostMethod(method: String, jsonBody: [String: AnyObject], postRequestCompletionHandler: (result: AnyObject!, error: NSError?) -> Void) -> NSURLSessionDataTask {
+    func taskForPostMethod(method: String, jsonBody: [String: AnyObject], postRequestCompletionHandler: (success: Bool, result: AnyObject!, error: NSError?) -> Void) -> NSURLSessionDataTask {
         let request = NSMutableURLRequest(URL: parseURLWithMethod(method, parameters: nil))
         request.HTTPMethod = "POST"
         request.addValue(Constants.APIKey, forHTTPHeaderField: ParseHTTPHeaderField.APIKey)
@@ -86,7 +86,7 @@ extension ParseClient {
             func sendError(error: String) {
                 print(error)
                 let userInfo = [NSLocalizedDescriptionKey: error]
-                postRequestCompletionHandler(result: nil, error: NSError(domain: "taskForGetMethod", code: 1, userInfo: userInfo))
+                postRequestCompletionHandler(success: false, result: nil, error: NSError(domain: "taskForGetMethod", code: 1, userInfo: userInfo))
             }
             
             // Check if there's an error
@@ -139,16 +139,16 @@ extension ParseClient {
         return components.URL!
     }
     
-    func parseJSONWithCompletionHandler(data: NSData, completionHandler: (result: AnyObject!, error: NSError?) -> Void) {
+    func parseJSONWithCompletionHandler(data: NSData, completionHandler: (success: Bool, result: AnyObject!, error: NSError?) -> Void) {
         var parsedResults: AnyObject!
         do {
             parsedResults = try NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments)
         } catch {
             let userInfo = [NSLocalizedDescriptionKey : "Could not parse the data as JSON: '\(data)'"]
-            completionHandler(result: nil, error: NSError(domain: "parseJSONWithCompletionHandler", code: 1, userInfo: userInfo))
+            completionHandler(success: false, result: nil, error: NSError(domain: "parseJSONWithCompletionHandler", code: 1, userInfo: userInfo))
         }
         
-        completionHandler(result: parsedResults, error: nil)
+        completionHandler(success: true, result: parsedResults, error: nil)
     }
     
     // Notify the controller that something has updated.

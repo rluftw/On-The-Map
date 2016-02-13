@@ -30,7 +30,7 @@ extension UdacityClient {
     // MARK: - HTTP Request
     
     // The Udacity login API uses the POST HTTP method which takes a jsonBody and a method
-    func taskForPOSTMethod(method: String, jsonBody: [String: AnyObject], postRequestCompletionHandler: (result: AnyObject!, error: NSError?) -> Void) {
+    func taskForPOSTMethod(method: String, jsonBody: [String: AnyObject], postRequestCompletionHandler: (success: Bool, result: AnyObject!, error: NSError?) -> Void) {
 
         // Create the Request object
         let request = NSMutableURLRequest(URL: udacityURLWithMethod(method))
@@ -47,23 +47,22 @@ extension UdacityClient {
             func sendError(error: String) {
                 print(error)
                 let userInfo = [NSLocalizedDescriptionKey: error]
-                postRequestCompletionHandler(result: nil, error: NSError(domain: "taskForPOSTMethod", code: 1, userInfo: userInfo))
+                postRequestCompletionHandler(success: false, result: nil, error: NSError(domain: "taskForPOSTMethod", code: 1, userInfo: userInfo))
             }
             
             // Check if there's an error
             guard error == nil else {
-                // Alert user that there is a network problem
-                self.postNotification("NetworkFailure")
-                
-                sendError("There was an error with your request: \(error!.localizedDescription)")
+                sendError(error!.localizedDescription)
+                return
+            }
+            
+            if let statusCode = (response as? NSHTTPURLResponse)?.statusCode where statusCode >= 400 && statusCode <= 499 {
+                sendError("Invalid Email or Password")
                 return
             }
             
             // Check for a valid response type (2XX)
             guard let statusCode = (response as? NSHTTPURLResponse)?.statusCode where statusCode <= 299 && statusCode >= 200 else {
-                // Alert user that the the credentials are invalid
-                self.postNotification("CredentialFailure")
-                
                 sendError("Your request returned a status code other than 2xx!")
                 return
             }
@@ -76,7 +75,6 @@ extension UdacityClient {
             
             // Work with the data
             self.parseJSONWithCompletionHandler(data, completionHandler: postRequestCompletionHandler)
-            self.postNotification("CompleteLogin")
         }
         
         // Start the task
@@ -85,7 +83,7 @@ extension UdacityClient {
     
 
     // The Udacity logout API uses the DELETE http method which takes only a method
-    func taskForDELETEMethod(method: String, deleteRequestCompletionHandler: (result: AnyObject!, error: NSError?) -> Void) -> NSURLSessionDataTask {
+    func taskForDELETEMethod(method: String, deleteRequestCompletionHandler: (success: Bool, result: AnyObject!, error: NSError?) -> Void) -> NSURLSessionDataTask {
         // Create the Request object
         let request = NSMutableURLRequest(URL: udacityURLWithMethod(method))
         request.HTTPMethod = "DELETE"
@@ -108,13 +106,13 @@ extension UdacityClient {
             func sendError(error: String) {
                 print(error)
                 let userInfo = [NSLocalizedDescriptionKey: error]
-                deleteRequestCompletionHandler(result: nil, error: NSError(domain: "taskForDELETEMethod", code: 1, userInfo: userInfo))
+                deleteRequestCompletionHandler(success: false, result: nil, error: NSError(domain: "taskForDELETEMethod", code: 1, userInfo: userInfo))
             }
 
             
             // Check if there's an error
             guard error == nil else {
-                sendError("There was an error with your request: \(error)")
+                sendError(error!.localizedDescription)
                 return
             }
             
@@ -141,7 +139,7 @@ extension UdacityClient {
     }
     
     // The Udacity logout API uses the GET http method which takes only a method (the method may need substitution)
-    func taskForGETRequest(method: String, getRequestCompletionHandler: (result: AnyObject!, error: NSError?) -> Void) {
+    func taskForGETRequest(method: String, getRequestCompletionHandler: (success: Bool, result: AnyObject!, error: NSError?) -> Void) {
         
         // Create the Request object
         let request = NSMutableURLRequest(URL: udacityURLWithMethod(replacePlaceHolderInMethod(Methods.UserData, withKey: URLKeys.UserID, value: userID)))
@@ -153,13 +151,13 @@ extension UdacityClient {
             func sendError(error: String) {
                 print(error)
                 let userInfo = [NSLocalizedDescriptionKey: error]
-                getRequestCompletionHandler(result: nil, error: NSError(domain: "taskForGETMethod", code: 1, userInfo: userInfo))
+                getRequestCompletionHandler(success: false, result: nil, error: NSError(domain: "taskForGETMethod", code: 1, userInfo: userInfo))
             }
             
             
             // Check if there's an error
             guard error == nil else {
-                sendError("There was an error with your request: \(error)")
+                sendError(error!.localizedDescription)
                 return
             }
             
@@ -194,7 +192,7 @@ extension UdacityClient {
         return components.URL!
     }
     
-    func parseJSONWithCompletionHandler(data: NSData, completionHandler: (result: AnyObject!, error: NSError?) -> Void) {
+    func parseJSONWithCompletionHandler(data: NSData, completionHandler: (success: Bool, result: AnyObject!, error: NSError?) -> Void) {
         var parsedResults: AnyObject!
         do {
             /*
@@ -205,10 +203,10 @@ extension UdacityClient {
             parsedResults = try NSJSONSerialization.JSONObjectWithData(newData, options: .AllowFragments)
         } catch {
             let userInfo = [NSLocalizedDescriptionKey : "Could not parse the data as JSON: '\(data)'"]
-            completionHandler(result: nil, error: NSError(domain: "parseJSONWithCompletionHandler", code: 1, userInfo: userInfo))
+            completionHandler(success: false, result: nil, error: NSError(domain: "parseJSONWithCompletionHandler", code: 1, userInfo: userInfo))
         }
                 
-        completionHandler(result: parsedResults, error: nil)
+        completionHandler(success: true, result: parsedResults, error: nil)
     }
     
     // Used for replacing placeholders in methods

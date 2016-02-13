@@ -15,7 +15,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var loginButton: UIButton!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
-    let client = UdacityClient.sharedInstance()
+
     
     // MARK: - Viewcontroller Lifecycle
     
@@ -26,22 +26,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         passwordTextField.delegate = self
     }
     
-    override func viewWillAppear(animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "completeLogin:", name: "CompleteLogin", object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "networkFailureHandler:", name: "NetworkFailure", object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "credentialFailureHandler:", name: "CredentialFailure", object: nil)
-    }
-    
-    override func viewWillDisappear(animated: Bool) {
-        super.viewWillDisappear(animated)
-        
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: "CompleteLogin", object: nil)
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: "NetworkFailure", object: nil)
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: "CredentialFailure", object: nil)
-    }
-    
     // MARK: - Textfield Delegates
     
     func textFieldShouldReturn(textField: UITextField) -> Bool {
@@ -50,45 +34,29 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         return true
     }
     
-    // MARK: - Login methods
+    // MARK: - IBAction methods
     
     @IBAction func login(sender: UIButton) {
         view.endEditing(true)
         
         if usernameTextField.text == "" || passwordTextField.text == "" {
-            
-            // Alert the user and prompt for a username and password
-            let alert = UIAlertController(title: "Login", message: "Please login with your Udacity Credentials", preferredStyle: .Alert)
-            alert.addAction(UIAlertAction(title: "Ok", style: .Default, handler: nil))
-            
-            presentViewController(alert, animated: true, completion: nil)
+            showAlert("Login", message: "Please login with your Udacity credentials")
         } else {
             toggleUI()
-            client.loginWithUserName(usernameTextField.text!, password: passwordTextField.text!) {
+
+            UdacityClient.sharedInstance().loginWithUserName(usernameTextField.text!, password: passwordTextField.text!, completionHandler: { (success, result, error) -> Void in
+                
+                if success {
+                    let tabBarController = self.storyboard?.instantiateViewControllerWithIdentifier("MapAndTableView") as! UITabBarController
+                    self.presentViewController(tabBarController, animated: true, completion: nil)
+                } else {
+                    self.showAlert("Login", message: error!.localizedDescription)
+                    return
+                }
+                
                 self.toggleUI()
-            }
+            })
         }
-    }
-    
-    // MARK: - Selector methods
-    
-    func networkFailureHandler(notification: NSNotification) {
-        let alert = UIAlertController(title: "Network Error", message: "Please check your network connection.", preferredStyle: .Alert)
-        alert.addAction(UIAlertAction(title: "Ok", style: .Default, handler: nil))
-        
-        presentViewController(alert, animated: true, completion: nil)
-    }
-    
-    func credentialFailureHandler(notification: NSNotification) {
-        let alert = UIAlertController(title: "Invalid Email or Password", message: "", preferredStyle: .Alert)
-        alert.addAction(UIAlertAction(title: "Ok", style: .Default, handler: nil))
-        
-        presentViewController(alert, animated: true, completion: nil)
-    }
-    
-    func completeLogin(notification: NSNotification) {
-        let mapAndTableView = self.storyboard!.instantiateViewControllerWithIdentifier("MapAndTableView")
-        self.presentViewController(mapAndTableView, animated: true, completion: nil)
     }
     
     // MARK: - Helper methods
@@ -98,5 +66,13 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         loginButton.enabled = !loginButton.enabled
         usernameTextField.enabled = !usernameTextField.enabled
         passwordTextField.enabled = !passwordTextField.enabled
+    }
+    
+    func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .Alert)
+        alert.addAction(UIAlertAction(title: "Ok", style: .Default, handler: nil))
+        toggleUI()
+        
+        presentViewController(alert, animated: true, completion: nil)
     }
 }
