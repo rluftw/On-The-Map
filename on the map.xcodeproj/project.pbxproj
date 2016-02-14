@@ -17,6 +17,7 @@
 		3738CAAB1C6BC28500752CDC /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3738CAAA1C6BC28500752CDC /* LoginViewController.swift */; };
 		37C1C3521C6EE0C500631AAA /* ChooseLocationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C1C3511C6EE0C500631AAA /* ChooseLocationViewController.swift */; };
 		37C1C3541C6EE5AB00631AAA /* StudentConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C1C3531C6EE5AB00631AAA /* StudentConstants.swift */; };
+		37C1C3581C6F7BBF00631AAA /* PostURLViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C1C3571C6F7BBF00631AAA /* PostURLViewController.swift */; };
 		37DE8E6B1C6D09D2008C8A45 /* LoginTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37DE8E6A1C6D09D2008C8A45 /* LoginTextField.swift */; };
 		37DE8E6D1C6D4AFC008C8A45 /* ParseConvenience.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37DE8E6C1C6D4AFC008C8A45 /* ParseConvenience.swift */; };
 		37DE8E6F1C6D4BFE008C8A45 /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37DE8E6E1C6D4BFE008C8A45 /* MapViewController.swift */; };
@@ -41,6 +42,7 @@
 		3738CAAA1C6BC28500752CDC /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LoginViewController.swift; path = Controllers/LoginViewController.swift; sourceTree = "<group>"; };
 		37C1C3511C6EE0C500631AAA /* ChooseLocationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ChooseLocationViewController.swift; path = Controllers/ChooseLocationViewController.swift; sourceTree = "<group>"; };
 		37C1C3531C6EE5AB00631AAA /* StudentConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = StudentConstants.swift; path = Models/StudentInformation/StudentConstants.swift; sourceTree = "<group>"; };
+		37C1C3571C6F7BBF00631AAA /* PostURLViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PostURLViewController.swift; path = Controllers/PostURLViewController.swift; sourceTree = "<group>"; };
 		37DE8E6A1C6D09D2008C8A45 /* LoginTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LoginTextField.swift; path = Views/LoginTextField.swift; sourceTree = "<group>"; };
 		37DE8E6C1C6D4AFC008C8A45 /* ParseConvenience.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ParseConvenience.swift; path = Models/Parse/ParseConvenience.swift; sourceTree = "<group>"; };
 		37DE8E6E1C6D4BFE008C8A45 /* MapViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MapViewController.swift; path = Controllers/MapViewController.swift; sourceTree = "<group>"; };
@@ -117,6 +119,7 @@
 				37DE8E6E1C6D4BFE008C8A45 /* MapViewController.swift */,
 				37DE8E741C6D8E04008C8A45 /* StudentLocationTableViewController.swift */,
 				37C1C3511C6EE0C500631AAA /* ChooseLocationViewController.swift */,
+				37C1C3571C6F7BBF00631AAA /* PostURLViewController.swift */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -255,6 +258,7 @@
 				37DE8E751C6D8E04008C8A45 /* StudentLocationTableViewController.swift in Sources */,
 				37F66A8B1C6D007B00649E11 /* ParseClient.swift in Sources */,
 				3738CAA71C6BAEC300752CDC /* UdacityConvenience.swift in Sources */,
+				37C1C3581C6F7BBF00631AAA /* PostURLViewController.swift in Sources */,
 				37C1C3521C6EE0C500631AAA /* ChooseLocationViewController.swift in Sources */,
 				37DE8E6B1C6D09D2008C8A45 /* LoginTextField.swift in Sources */,
 			);

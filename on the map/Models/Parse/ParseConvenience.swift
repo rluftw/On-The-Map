@@ -14,6 +14,7 @@ extension ParseClient {
         taskForGetMethod(Methods.StudentLocation, parameters: nil) { (success, result, error) -> Void in
             // Check for any errors first
             guard (error == nil) else {
+                self.executeCompletionHandler(success, result: result, error: error, completionHandler: completionHandler)
                 return
             }
             
@@ -33,7 +34,7 @@ extension ParseClient {
     }
     
     func postStudentLocation(completionHandler: ((success: Bool, result: AnyObject!, error: NSError?) -> Void)) {
-        
+        taskForPostMethod(Methods.StudentLocation, jsonBody: <#T##[String : AnyObject]#>, postRequestCompletionHandler: <#T##(success: Bool, result: AnyObject!, error: NSError?) -> Void#>)
 
     }
     

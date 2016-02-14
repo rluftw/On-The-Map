@@ -44,13 +44,14 @@ extension ParseClient {
             
             // Check if there's an error
             guard error == nil else {
-                sendError("There was an error with your request: \(error!.localizedDescription)")
+                sendError(error!.localizedDescription)
                 return
             }
             
             // Check for a valid response type (2XX)
             guard let statusCode = (response as? NSHTTPURLResponse)?.statusCode where statusCode <= 299 && statusCode >= 200 else {
-                sendError("Your request returned a status code other than 2xx!")
+                print("Your request returned a status code other than 2xx!")
+                sendError("Failed to load")
                 return
             }
             
@@ -91,7 +92,7 @@ extension ParseClient {
             
             // Check if there's an error
             guard error == nil else {
-                sendError("There was an error with your request: \(error!.localizedDescription)")
+                sendError(error!.localizedDescription)
                 return
             }
             

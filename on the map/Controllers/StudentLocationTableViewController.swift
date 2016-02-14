@@ -31,6 +31,7 @@ class StudentLocationTableViewController: UITableViewController {
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         
+        refresh()
     }
     
     // MARK: - Table view data source

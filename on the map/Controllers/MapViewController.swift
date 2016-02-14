@@ -28,6 +28,9 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         super.viewDidLoad()
         
         mapView.delegate = self
+    }
+    
+    override func viewWillAppear(animated: Bool) {
         retrieveLocations()
     }
     
@@ -97,12 +100,13 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     // MARK: - Helper methods
     
     func retrieveLocations() {
+        
         ParseClient.sharedInstance().getStudentLocations { (success, result, error) -> Void in
             
             // Check if there were any errors. i.e network
             guard (error == nil) else {
                 self.finishLoading()
-                self.showAlert("Refresh", message: error!.localizedDescription)
+                self.showAlert("Load", message: error!.localizedDescription)
                 return
             }
             
