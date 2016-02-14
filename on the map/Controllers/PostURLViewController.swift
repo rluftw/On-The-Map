@@ -152,6 +152,9 @@ class PostURLViewController: UIViewController, UITextFieldDelegate, MKMapViewDel
         
         mapView.setRegion(region, animated: true)
         mapView.addAnnotation(pointAnnotation)
+        
+        // Set the view angle
+        mapView.camera.pitch = 45
     }
     
     func showAlert(title: String, message: String) {

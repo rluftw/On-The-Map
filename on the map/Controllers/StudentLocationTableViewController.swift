@@ -143,6 +143,10 @@ class StudentLocationTableViewController: UITableViewController {
         postLocationButton.enabled = !postLocationButton.enabled
         tabBarController!.tabBar.userInteractionEnabled = !tabBarController!.tabBar.userInteractionEnabled
         view.userInteractionEnabled = !view.userInteractionEnabled
+        
+        if logoutButton.enabled {
+            tableViewRefreshControl.endRefreshing()
+        }
     }
     
     func showAlert(title: String, message: String) {
