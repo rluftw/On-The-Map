@@ -31,6 +31,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     }
     
     override func viewWillAppear(animated: Bool) {
+        mapView.alpha = 0.5
         toggleUI()
         
         retrieveLocations()
@@ -60,6 +61,8 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     }
     
     @IBAction func refresh(sender: AnyObject) {
+        // Can't be placed onto toggle because the animation completion handler uses a toggle.
+        
         toggleUI()
         retrieveLocations()
     }
@@ -152,9 +155,11 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     
     func toggleUI() {
         activityIndicator.isAnimating() ? self.activityIndicator.stopAnimating(): self.activityIndicator.startAnimating()
+        
+        // enable/disable controls
         refreshButton.enabled = !refreshButton.enabled
         logoutButton.enabled = !logoutButton.enabled
-        postLocationButton.enabled = !postLocationButton.enabled        
+        postLocationButton.enabled = !postLocationButton.enabled
         
         tabBarController!.tabBar.userInteractionEnabled = !tabBarController!.tabBar.userInteractionEnabled
         view.userInteractionEnabled = !view.userInteractionEnabled

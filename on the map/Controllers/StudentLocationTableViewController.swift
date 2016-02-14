@@ -102,6 +102,9 @@ class StudentLocationTableViewController: UITableViewController {
     // MARK: - Selectors
     
     func refresh() {
+        // Can't be placed onto toggle because the animation completion handler uses a toggle.
+        tableView.alpha = 0.5
+        
         toggleUI()
         retrieveLocations()
     }
