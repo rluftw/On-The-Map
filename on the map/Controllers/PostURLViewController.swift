@@ -74,7 +74,7 @@ class PostURLViewController: UIViewController, UITextFieldDelegate, MKMapViewDel
     }
     
     func textFieldDidEndEditing(textField: UITextField) {
-        if !textField.text!.hasPrefix("http://") {
+        if !textField.text!.hasPrefix("http") {
             textField.text = "http://\(textField.text!)"
         }
     }
