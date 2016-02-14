@@ -394,7 +394,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/on\\ the\\ map",
-					/Users/xinghuilu/Documents/FacebookSDK,
+					"$(PROJECT_DIR)/FacebookSDK",
 				);
 				INFOPLIST_FILE = "on the map/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -410,7 +410,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/on\\ the\\ map",
-					/Users/xinghuilu/Documents/FacebookSDK,
+					"$(PROJECT_DIR)/FacebookSDK",
 				);
 				INFOPLIST_FILE = "on the map/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
