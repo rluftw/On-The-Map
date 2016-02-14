@@ -56,12 +56,14 @@ class MapViewController: UIViewController, MKMapViewDelegate {
                 self.dismissViewControllerAnimated(true, completion: nil)
             }
 
+            
             self.toggleUI()
         }
     }
     
     @IBAction func refresh(sender: AnyObject) {
         // Can't be placed onto toggle because the animation completion handler uses a toggle.
+        mapView.alpha = 0.5
         
         toggleUI()
         retrieveLocations()

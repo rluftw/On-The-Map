@@ -58,8 +58,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                     self.toggleUI()
                     return
                 }
-                
-                self.toggleUI()
             })
         }
     }
@@ -101,12 +99,13 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     
     // MARK: - Helper methods
     
+    // No helper methods are suppose to be toggling, the only exception is this one!
     func getUserPublicData() {
         UdacityClient.sharedInstance().getUserPublicData({ (success, result, error) -> Void in
             if success {
+                self.toggleUI()
                 let tabBarController = self.storyboard?.instantiateViewControllerWithIdentifier("MapAndTableView") as! UITabBarController
                 self.presentViewController(tabBarController, animated: true, completion: nil)
-                self.toggleUI()
             } else {
                 self.toggleUI()
                 self.showAlert("Login", message: error!.localizedDescription)

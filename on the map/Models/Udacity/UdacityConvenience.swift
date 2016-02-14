@@ -68,8 +68,11 @@ extension UdacityClient {
             StudentInfoResponse.LastName = ""
     
             // Log out current facebook session.
-            (UIApplication.sharedApplication().delegate as! AppDelegate).loginManager.logOut()
-            (UIApplication.sharedApplication().delegate as! AppDelegate).loginManager = nil
+            
+            if (UIApplication.sharedApplication().delegate as! AppDelegate).loginManager != nil {
+                (UIApplication.sharedApplication().delegate as! AppDelegate).loginManager.logOut()
+                (UIApplication.sharedApplication().delegate as! AppDelegate).loginManager = nil
+            }
             
             self.executeCompletionHandler(success, result: result, error: error, completionHandler: completionHandler)
         }
