@@ -77,11 +77,13 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         loginManager.logInWithReadPermissions(["public_profile"], fromViewController: self) { (result, error) -> Void in
             guard error == nil else {
                 print("Process error, \(error.localizedDescription)")
+                self.toggleUI()
                 return
             }
             
             if result.isCancelled {
-                self.showAlert("Login", message: error!.localizedDescription)
+                self.showAlert("Login", message: "Canceled during authorization")
+                self.toggleUI()
             } else {
                 let tokenString = result.token.tokenString
                 UdacityClient.sharedInstance().login(tokenString, completionHandler: { (success, result, error) -> Void in
