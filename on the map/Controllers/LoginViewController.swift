@@ -94,8 +94,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                         self.toggleUI()
                         return
                     }
-                    
-                    self.toggleUI()
                 })
             }
         }
@@ -108,7 +106,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             if success {
                 let tabBarController = self.storyboard?.instantiateViewControllerWithIdentifier("MapAndTableView") as! UITabBarController
                 self.presentViewController(tabBarController, animated: true, completion: nil)
+                self.toggleUI()
             } else {
+                self.toggleUI()
                 self.showAlert("Login", message: error!.localizedDescription)
                 return
             }
