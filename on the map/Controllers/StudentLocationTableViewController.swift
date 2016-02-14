@@ -26,6 +26,7 @@ class StudentLocationTableViewController: UITableViewController {
 
         tableViewRefreshControl.addTarget(self, action: "refresh", forControlEvents: .ValueChanged)
         tableView.tableFooterView = UIView(frame: CGRectZero)
+        tableView.backgroundColor = UIColor(patternImage: UIImage(named: "wov")!)
     }
 
     override func viewWillAppear(animated: Bool) {

@@ -19,5 +19,6 @@ class StudentLocationCell: UITableViewCell {
         super.awakeFromNib()
         
         backgroundColor = UIColor(patternImage: UIImage(named: "school")!)
+
     }
 }
