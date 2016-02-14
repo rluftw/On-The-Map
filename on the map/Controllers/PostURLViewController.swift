@@ -85,7 +85,7 @@ class PostURLViewController: UIViewController, UITextFieldDelegate, MKMapViewDel
     }
     
     @IBAction func postLocation(sender: AnyObject) {
-        URLTextField.resignFirstResponder()
+        view.endEditing(true)
         
         toggleUI()
         
@@ -129,9 +129,14 @@ class PostURLViewController: UIViewController, UITextFieldDelegate, MKMapViewDel
     // MARK: - Helper methods
     func toggleUI() {
         activityIndicator.isAnimating() ? activityIndicator.stopAnimating(): activityIndicator.startAnimating()
+        
+        // enable/disable controls
         URLTextField.enabled = !URLTextField.enabled
         cancelButton.enabled = !cancelButton.enabled
         postButton.enabled = !postButton.enabled
+        
+        // transparency
+        
     }
     
     func pinOnMap() {

@@ -82,7 +82,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             }
             
             if result.isCancelled {
-                self.showAlert("Login", message: "Canceled during authorization")
+                self.showAlert("Login", message: "Facebook authorization failed")
                 self.toggleUI()
             } else {
                 let tokenString = result.token.tokenString

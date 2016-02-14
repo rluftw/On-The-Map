@@ -20,6 +20,7 @@
 		37C1C3581C6F7BBF00631AAA /* PostURLViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C1C3571C6F7BBF00631AAA /* PostURLViewController.swift */; };
 		37C1C35D1C70449600631AAA /* FBSDKCoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37C1C35C1C70449600631AAA /* FBSDKCoreKit.framework */; };
 		37C1C35F1C70474500631AAA /* FBSDKLoginKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37C1C35E1C70474500631AAA /* FBSDKLoginKit.framework */; };
+		37C1C3611C70D40000631AAA /* Bolts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37C1C3601C70D40000631AAA /* Bolts.framework */; };
 		37DE8E6B1C6D09D2008C8A45 /* LoginTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37DE8E6A1C6D09D2008C8A45 /* LoginTextField.swift */; };
 		37DE8E6D1C6D4AFC008C8A45 /* ParseConvenience.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37DE8E6C1C6D4AFC008C8A45 /* ParseConvenience.swift */; };
 		37DE8E6F1C6D4BFE008C8A45 /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37DE8E6E1C6D4BFE008C8A45 /* MapViewController.swift */; };
@@ -47,6 +48,7 @@
 		37C1C3571C6F7BBF00631AAA /* PostURLViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PostURLViewController.swift; path = Controllers/PostURLViewController.swift; sourceTree = "<group>"; };
 		37C1C35C1C70449600631AAA /* FBSDKCoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKCoreKit.framework; path = ../../../../Documents/FacebookSDK/FBSDKCoreKit.framework; sourceTree = "<group>"; };
 		37C1C35E1C70474500631AAA /* FBSDKLoginKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKLoginKit.framework; path = ../../../../Documents/FacebookSDK/FBSDKLoginKit.framework; sourceTree = "<group>"; };
+		37C1C3601C70D40000631AAA /* Bolts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Bolts.framework; path = ../../../../Documents/FacebookSDK/Bolts.framework; sourceTree = "<group>"; };
 		37DE8E6A1C6D09D2008C8A45 /* LoginTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LoginTextField.swift; path = Views/LoginTextField.swift; sourceTree = "<group>"; };
 		37DE8E6C1C6D4AFC008C8A45 /* ParseConvenience.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ParseConvenience.swift; path = Models/Parse/ParseConvenience.swift; sourceTree = "<group>"; };
 		37DE8E6E1C6D4BFE008C8A45 /* MapViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MapViewController.swift; path = Controllers/MapViewController.swift; sourceTree = "<group>"; };
@@ -63,6 +65,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				37C1C3611C70D40000631AAA /* Bolts.framework in Frameworks */,
 				37C1C35F1C70474500631AAA /* FBSDKLoginKit.framework in Frameworks */,
 				37C1C35D1C70449600631AAA /* FBSDKCoreKit.framework in Frameworks */,
 			);
@@ -163,6 +166,7 @@
 		37C1C3591C70422400631AAA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				37C1C3601C70D40000631AAA /* Bolts.framework */,
 				37C1C35E1C70474500631AAA /* FBSDKLoginKit.framework */,
 				37C1C35C1C70449600631AAA /* FBSDKCoreKit.framework */,
 			);

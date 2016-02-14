@@ -67,6 +67,7 @@ extension UdacityClient {
             StudentInfoResponse.FirstName = ""
             StudentInfoResponse.LastName = ""
     
+            // Log out current facebook session.
             (UIApplication.sharedApplication().delegate as! AppDelegate).loginManager.logOut()
             (UIApplication.sharedApplication().delegate as! AppDelegate).loginManager = nil
             

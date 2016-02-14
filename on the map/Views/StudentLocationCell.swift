@@ -14,4 +14,10 @@ class StudentLocationCell: UITableViewCell {
     @IBOutlet weak var fullNameLabel: UILabel!
     @IBOutlet weak var mediaURLLabel: UILabel!
     
+    
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        
+        backgroundColor = UIColor(patternImage: UIImage(named: "school")!)
+    }
 }

@@ -63,9 +63,11 @@ class StudentLocationTableViewController: UITableViewController {
         
         guard let url = NSURL(string: urlString) where app.canOpenURL(url) else {
             showAlert("", message: "Invalid URL")
+            tableView.deselectRowAtIndexPath(indexPath, animated: true)
             return
         }
         
+        tableView.deselectRowAtIndexPath(indexPath, animated: true)
         app.openURL(url)
     }
     
