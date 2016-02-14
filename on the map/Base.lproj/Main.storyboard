@@ -71,6 +71,31 @@
                             <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="gdz-qv-1Y3">
                                 <rect key="frame" x="290" y="290" width="20" height="20"/>
                             </activityIndicatorView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AxM-AZ-f3a">
+                                <rect key="frame" x="175" y="535" width="250" height="45"/>
+                                <color key="backgroundColor" red="0.91296073720000004" green="0.4592064428" blue="0.0025923330469999999" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="250" id="Ox5-jG-nfM"/>
+                                    <constraint firstAttribute="height" constant="45" id="Thu-Pq-u1a"/>
+                                    <constraint firstAttribute="height" constant="45" id="eac-49-acy"/>
+                                    <constraint firstAttribute="width" constant="250" id="zhr-hH-6Mc"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                <state key="normal" title="Login with Facebook">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                        <integer key="value" value="5"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                                <variation key="default">
+                                    <mask key="constraints">
+                                        <exclude reference="Thu-Pq-u1a"/>
+                                        <exclude reference="zhr-hH-6Mc"/>
+                                    </mask>
+                                </variation>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="0.61821395499999998" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
@@ -84,8 +109,10 @@
                             <constraint firstItem="gdz-qv-1Y3" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="UH8-0z-c8O"/>
                             <constraint firstItem="Sr1-Zp-hfh" firstAttribute="centerX" secondItem="8Bz-67-1x9" secondAttribute="centerX" id="VU7-G7-5PT"/>
                             <constraint firstItem="G77-WA-zHA" firstAttribute="height" secondItem="Sr1-Zp-hfh" secondAttribute="height" id="a8y-k2-RKX"/>
+                            <constraint firstItem="AxM-AZ-f3a" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="cZE-dn-KKw"/>
                             <constraint firstItem="gdz-qv-1Y3" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="fWy-Pb-bw2"/>
                             <constraint firstItem="d9h-La-jIt" firstAttribute="centerX" secondItem="G77-WA-zHA" secondAttribute="centerX" id="gN7-Fv-5ZQ"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="AxM-AZ-f3a" secondAttribute="bottom" constant="20" id="hcy-1k-SP2"/>
                             <constraint firstItem="d9h-La-jIt" firstAttribute="top" secondItem="G77-WA-zHA" secondAttribute="bottom" constant="8" id="kLT-0w-9IK"/>
                             <constraint firstItem="DDu-55-Jit" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="8" id="pOs-MC-320"/>
                             <constraint firstItem="Sr1-Zp-hfh" firstAttribute="top" secondItem="8Bz-67-1x9" secondAttribute="bottom" constant="19" id="y8T-uU-9yC"/>
@@ -94,6 +121,7 @@
                     </view>
                     <connections>
                         <outlet property="activityIndicator" destination="gdz-qv-1Y3" id="UM0-qg-SCP"/>
+                        <outlet property="facebookLoginButton" destination="AxM-AZ-f3a" id="BkX-2U-hht"/>
                         <outlet property="loginButton" destination="d9h-La-jIt" id="bpP-IR-DgB"/>
                         <outlet property="passwordTextField" destination="G77-WA-zHA" id="cbb-bT-1l6"/>
                         <outlet property="usernameTextField" destination="Sr1-Zp-hfh" id="o2w-er-xPA"/>
@@ -111,14 +139,14 @@
                         <viewControllerLayoutGuide type="top" id="hqt-V5-rCy"/>
                         <viewControllerLayoutGuide type="bottom" id="kcU-Ws-Ah0"/>
                     </layoutGuides>
-                    <view key="view" userInteractionEnabled="NO" contentMode="scaleToFill" id="qWJ-kF-BtI">
+                    <view key="view" contentMode="scaleToFill" id="qWJ-kF-BtI">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" alpha="0.5" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="8h2-I7-OWQ">
                                 <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                             </mapView>
-                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="qGS-ez-A2E">
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="qGS-ez-A2E">
                                 <rect key="frame" x="290" y="290" width="20" height="20"/>
                                 <color key="color" red="0.91296073720000004" green="0.4592064428" blue="0.0025923330469999999" alpha="1" colorSpace="calibratedRGB"/>
                             </activityIndicatorView>
@@ -134,20 +162,20 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="On The Map" id="EEA-Fe-IoK">
-                        <barButtonItem key="leftBarButtonItem" enabled="NO" title="Logout" id="w1D-zU-oGX">
+                        <barButtonItem key="leftBarButtonItem" title="Logout" id="w1D-zU-oGX">
                             <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             <connections>
                                 <action selector="logout:" destination="bOh-wE-VSN" id="QIv-MM-vyo"/>
                             </connections>
                         </barButtonItem>
                         <rightBarButtonItems>
-                            <barButtonItem enabled="NO" systemItem="refresh" id="Bsv-S8-15o">
+                            <barButtonItem systemItem="refresh" id="Bsv-S8-15o">
                                 <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <connections>
                                     <action selector="refresh:" destination="bOh-wE-VSN" id="ecA-sg-Zvr"/>
                                 </connections>
                             </barButtonItem>
-                            <barButtonItem enabled="NO" image="pin" id="GjP-yv-1eh">
+                            <barButtonItem image="pin" id="GjP-yv-1eh">
                                 <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <connections>
                                     <action selector="postLocation:" destination="bOh-wE-VSN" id="c69-fn-kQr"/>
@@ -361,7 +389,7 @@
             <objects>
                 <tabBarController storyboardIdentifier="MapAndTableView" automaticallyAdjustsScrollViewInsets="NO" id="USG-Bd-nI7" sceneMemberID="viewController">
                     <toolbarItems/>
-                    <tabBar key="tabBar" userInteractionEnabled="NO" contentMode="scaleToFill" id="8UB-jB-aU3">
+                    <tabBar key="tabBar" contentMode="scaleToFill" id="8UB-jB-aU3">
                         <autoresizingMask key="autoresizingMask"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                         <color key="barTintColor" red="1" green="0.61960784313725492" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
@@ -591,6 +619,9 @@
                                                 <integer key="value" value="5"/>
                                             </userDefinedRuntimeAttribute>
                                         </userDefinedRuntimeAttributes>
+                                        <connections>
+                                            <action selector="postLocation:" destination="Cte-kK-JjM" eventType="touchUpInside" id="gIJ-m3-dhd"/>
+                                        </connections>
                                     </button>
                                 </subviews>
                                 <color key="backgroundColor" red="1" green="0.61960784310000006" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
@@ -609,9 +640,14 @@
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" userInteractionEnabled="NO" contentMode="scaleToFill" mapType="standard" zoomEnabled="NO" scrollEnabled="NO" rotateEnabled="NO" pitchEnabled="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3hx-Xk-50b">
                                 <rect key="frame" x="0.0" y="150" width="600" height="450"/>
                             </mapView>
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="4QU-vw-ZPK">
+                                <rect key="frame" x="290" y="290" width="20" height="20"/>
+                                <color key="color" red="0.91296073720000004" green="0.4592064428" blue="0.0025923330469999999" alpha="1" colorSpace="calibratedRGB"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="4QU-vw-ZPK" firstAttribute="centerY" secondItem="Irf-gk-tfm" secondAttribute="centerY" id="3pc-pG-CEp"/>
                             <constraint firstAttribute="trailing" secondItem="3hx-Xk-50b" secondAttribute="trailing" id="AyY-Qs-rJf"/>
                             <constraint firstItem="3hx-Xk-50b" firstAttribute="top" secondItem="FtO-fw-Kh4" secondAttribute="bottom" id="KvH-gz-MUl"/>
                             <constraint firstItem="FtO-fw-Kh4" firstAttribute="top" secondItem="Irf-gk-tfm" secondAttribute="top" constant="20" id="SOZ-TE-JMx"/>
@@ -619,6 +655,7 @@
                             <constraint firstItem="FtO-fw-Kh4" firstAttribute="leading" secondItem="Irf-gk-tfm" secondAttribute="leading" id="f43-Uw-4b8"/>
                             <constraint firstItem="FtO-fw-Kh4" firstAttribute="top" secondItem="xCY-XW-DwE" secondAttribute="bottom" id="giy-gi-SpX"/>
                             <constraint firstAttribute="bottom" secondItem="3hx-Xk-50b" secondAttribute="bottom" id="uNQ-H1-RER"/>
+                            <constraint firstItem="4QU-vw-ZPK" firstAttribute="centerX" secondItem="Irf-gk-tfm" secondAttribute="centerX" id="yGZ-aO-Bav"/>
                             <constraint firstItem="FtO-fw-Kh4" firstAttribute="top" secondItem="Irf-gk-tfm" secondAttribute="topMargin" id="zAp-BK-wu2"/>
                             <constraint firstItem="3hx-Xk-50b" firstAttribute="leading" secondItem="Irf-gk-tfm" secondAttribute="leading" id="zQD-i9-9VE"/>
                         </constraints>
@@ -633,7 +670,10 @@
                     <simulatedStatusBarMetrics key="simulatedStatusBarMetrics" statusBarStyle="lightContent"/>
                     <connections>
                         <outlet property="URLTextField" destination="uSn-6h-K2S" id="hSF-BL-lk7"/>
+                        <outlet property="activityIndicator" destination="4QU-vw-ZPK" id="Rfa-5a-SsV"/>
+                        <outlet property="cancelButton" destination="Jww-gj-DX7" id="Bv5-d8-bhb"/>
                         <outlet property="mapView" destination="3hx-Xk-50b" id="wIV-mb-MhC"/>
+                        <outlet property="postButton" destination="bey-zG-5vm" id="iDT-Vs-vue"/>
                         <outlet property="topView" destination="FtO-fw-Kh4" id="Wcz-Ju-kgP"/>
                     </connections>
                 </viewController>

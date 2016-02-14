@@ -30,13 +30,18 @@ extension UdacityClient {
         static let AccountKey = "key"
         static let Session = "session"
         static let ID = "id"
-        static let expiration = "expiration"
+        static let Expiration = "expiration"
+        static let User = "user"
+        static let LastName = "last_name"
+        static let FirstName = "first_name"
     }
     
     struct JSONBodyKeys {
         static let Domain = "udacity"
         static let Username = "username"
         static let Password = "password"
+        static let FacebookMobile = "facebook_mobile"
+        static let AccessToken = "access_token"
     }
     
     struct DataFormat {
@@ -46,5 +51,11 @@ extension UdacityClient {
     struct HTTPHeaderField {
         static let Accept = "Accept"
         static let ContentType = "Content-Type"
+    }
+    
+    struct StudentInfoResponse {
+        static var SessionID = ""
+        static var FirstName = ""
+        static var LastName = ""
     }
 }

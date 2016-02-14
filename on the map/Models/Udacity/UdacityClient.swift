@@ -10,7 +10,9 @@ import Foundation
 
 class UdacityClient {
     let session: NSURLSession
-    var userID: String!
+//    var userID: String!
+//    var firstName: String!
+//    var lastName: String!
     
     init() {
         session = NSURLSession.sharedSession()
@@ -142,7 +144,7 @@ extension UdacityClient {
     func taskForGETRequest(method: String, getRequestCompletionHandler: (success: Bool, result: AnyObject!, error: NSError?) -> Void) {
         
         // Create the Request object
-        let request = NSMutableURLRequest(URL: udacityURLWithMethod(replacePlaceHolderInMethod(Methods.UserData, withKey: URLKeys.UserID, value: userID)))
+        let request = NSMutableURLRequest(URL: udacityURLWithMethod(replacePlaceHolderInMethod(Methods.UserData, withKey: URLKeys.UserID, value: StudentInfoResponse.SessionID)))
         
         print(request)
         
@@ -153,7 +155,6 @@ extension UdacityClient {
                 let userInfo = [NSLocalizedDescriptionKey: error]
                 getRequestCompletionHandler(success: false, result: nil, error: NSError(domain: "taskForGETMethod", code: 1, userInfo: userInfo))
             }
-            
             
             // Check if there's an error
             guard error == nil else {

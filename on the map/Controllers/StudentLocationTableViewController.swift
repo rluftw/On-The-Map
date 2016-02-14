@@ -55,8 +55,13 @@ class StudentLocationTableViewController: UITableViewController {
         let app = UIApplication.sharedApplication()
         let students = (app.delegate as! AppDelegate).students
         let student = students[indexPath.row]
-
-        guard let url = NSURL(string: student.mediaURL) where app.canOpenURL(url) else {
+        var urlString = student.mediaURL
+        
+        if !urlString.hasPrefix("http") {
+            urlString = "http://\(urlString)"
+        }
+        
+        guard let url = NSURL(string: urlString) where app.canOpenURL(url) else {
             showAlert("", message: "Invalid URL")
             return
         }

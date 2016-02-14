@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import FBSDKLoginKit
 
 class LoginViewController: UIViewController, UITextFieldDelegate {
     
@@ -15,8 +16,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var loginButton: UIButton!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
+    @IBOutlet weak var facebookLoginButton: UIButton!
 
-    
     // MARK: - Viewcontroller Lifecycle
     
     override func viewDidLoad() {
@@ -24,6 +25,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         
         usernameTextField.delegate = self
         passwordTextField.delegate = self
+        
+        facebookLoginButton.addTarget(self, action: "loginWithFB", forControlEvents: .TouchUpInside)
     }
     
     // MARK: - Textfield Delegates
@@ -44,13 +47,15 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         } else {
             toggleUI()
 
-            UdacityClient.sharedInstance().loginWithUserName(usernameTextField.text!, password: passwordTextField.text!, completionHandler: { (success, result, error) -> Void in
+            UdacityClient.sharedInstance().login(username: usernameTextField.text!, password: passwordTextField.text!, completionHandler: { (success, result, error) -> Void in
                 
+                
+                // If successful, gather the public user data (REQUIRED FOR POSTING)
                 if success {
-                    let tabBarController = self.storyboard?.instantiateViewControllerWithIdentifier("MapAndTableView") as! UITabBarController
-                    self.presentViewController(tabBarController, animated: true, completion: nil)
+                    self.getUserPublicData()
                 } else {
                     self.showAlert("Login", message: error!.localizedDescription)
+                    self.toggleUI()
                     return
                 }
                 
@@ -59,19 +64,66 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
+    // MARK: - Selectors
+    
+    func loginWithFB() {
+        view.endEditing(true)
+        
+        toggleUI()
+        
+        (UIApplication.sharedApplication().delegate as! AppDelegate).loginManager = FBSDKLoginManager()
+        let loginManager = (UIApplication.sharedApplication().delegate as! AppDelegate).loginManager
+
+        loginManager.logInWithReadPermissions(["public_profile"], fromViewController: self) { (result, error) -> Void in
+            guard error == nil else {
+                print("Process error, \(error.localizedDescription)")
+                return
+            }
+            
+            if result.isCancelled {
+                self.showAlert("Login", message: error!.localizedDescription)
+            } else {
+                let tokenString = result.token.tokenString
+                UdacityClient.sharedInstance().login(tokenString, completionHandler: { (success, result, error) -> Void in
+                    if success {
+                        self.getUserPublicData()
+                    } else {
+                        self.showAlert("Login", message: error!.localizedDescription)
+                        self.toggleUI()
+                        return
+                    }
+                    
+                    self.toggleUI()
+                })
+            }
+        }
+    }
+    
     // MARK: - Helper methods
+    
+    func getUserPublicData() {
+        UdacityClient.sharedInstance().getUserPublicData({ (success, result, error) -> Void in
+            if success {
+                let tabBarController = self.storyboard?.instantiateViewControllerWithIdentifier("MapAndTableView") as! UITabBarController
+                self.presentViewController(tabBarController, animated: true, completion: nil)
+            } else {
+                self.showAlert("Login", message: error!.localizedDescription)
+                return
+            }
+        })
+    }
     
     func toggleUI() {
         activityIndicator.isAnimating() ? activityIndicator.stopAnimating(): activityIndicator.startAnimating()
         loginButton.enabled = !loginButton.enabled
         usernameTextField.enabled = !usernameTextField.enabled
         passwordTextField.enabled = !passwordTextField.enabled
+        facebookLoginButton.enabled = !facebookLoginButton.enabled
     }
     
     func showAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .Alert)
         alert.addAction(UIAlertAction(title: "Ok", style: .Default, handler: nil))
-        toggleUI()
         
         presentViewController(alert, animated: true, completion: nil)
     }

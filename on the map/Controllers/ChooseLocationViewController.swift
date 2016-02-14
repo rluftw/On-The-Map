@@ -119,6 +119,7 @@ class ChooseLocationViewController: UIViewController, UITextFieldDelegate {
         if segue.identifier == "postURL" {
             let postURLVC = segue.destinationViewController as! PostURLViewController
             postURLVC.location = location
+            postURLVC.mapString = locationTextField.text!
         }
     }
 }

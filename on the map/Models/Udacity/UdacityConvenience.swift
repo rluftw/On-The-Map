@@ -7,16 +7,24 @@
 //
 
 import Foundation
+import UIKit
 
 // Convenience methods for Udacity API
 extension UdacityClient {
     // MARK - Authentication
     
-    func loginWithUserName(username: String, password: String, completionHandler: ((success: Bool, result: AnyObject!, error: NSError?) -> Void)) {
+    func login(token: String = "", username: String = "", password: String = "", completionHandler: ((success: Bool, result: AnyObject!, error: NSError?) -> Void)) {
         
-        // Create the JSON for the HTTP body
-        let userinfo : [String: String] =  [JSONBodyKeys.Username : username, JSONBodyKeys.Password : password]
-        let jsonBody : [String: AnyObject] = [JSONBodyKeys.Domain: userinfo]
+        var jsonBody: [String: AnyObject]!
+        
+        // If there's no facebook token, use regular login
+        if token == "" {
+            let userinfo : [String: String] =  [JSONBodyKeys.Username : username, JSONBodyKeys.Password : password]
+            jsonBody = [JSONBodyKeys.Domain: userinfo]
+        } else {
+            let accessTokenDict: [String: String] = [JSONBodyKeys.AccessToken: token]
+            jsonBody = [JSONBodyKeys.FacebookMobile: accessTokenDict]
+        }
 
         // Call the task to be performed
         taskForPOSTMethod(Methods.Session, jsonBody: jsonBody) { (success, result, error) -> Void in
@@ -33,7 +41,7 @@ extension UdacityClient {
             
             // Store ID
             if let account = result[JSONResponseKeys.Account] as? [String: AnyObject] {
-                self.userID = account[JSONResponseKeys.AccountKey] as? String
+                StudentInfoResponse.SessionID = account[JSONResponseKeys.AccountKey] as! String
             }
             
             // Do other stuff like print the result
@@ -55,13 +63,19 @@ extension UdacityClient {
             // Do other stuff like print the result
             print(result)
             
-            self.userID = nil
+            StudentInfoResponse.SessionID = ""
+            StudentInfoResponse.FirstName = ""
+            StudentInfoResponse.LastName = ""
+    
+            (UIApplication.sharedApplication().delegate as! AppDelegate).loginManager.logOut()
+            (UIApplication.sharedApplication().delegate as! AppDelegate).loginManager = nil
+            
             self.executeCompletionHandler(success, result: result, error: error, completionHandler: completionHandler)
         }
     }
     
     func getUserPublicData(completionHandler: ((success: Bool, result: AnyObject!, error: NSError?) -> Void)) {
-        let method = replacePlaceHolderInMethod(Methods.UserData, withKey: URLKeys.UserID, value: userID!)
+        let method = replacePlaceHolderInMethod(Methods.UserData, withKey: URLKeys.UserID, value: StudentInfoResponse.SessionID)
     
         taskForGETRequest(method) { (success, result, error) -> Void in
             
@@ -71,8 +85,11 @@ extension UdacityClient {
                 return
             }
             
-            // Do other stuff like print the result
-            print(result)
+            // Store first name and last name
+            if let account = result[JSONResponseKeys.User] as? [String: AnyObject] {
+                StudentInfoResponse.FirstName = account[JSONResponseKeys.FirstName] as! String
+                StudentInfoResponse.LastName = account[JSONResponseKeys.LastName] as! String
+            }
             
             self.executeCompletionHandler(success, result: result, error: error, completionHandler: completionHandler)
         }

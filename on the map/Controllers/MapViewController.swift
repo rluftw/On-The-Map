@@ -31,6 +31,8 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     }
     
     override func viewWillAppear(animated: Bool) {
+        toggleUI()
+        
         retrieveLocations()
     }
     
@@ -86,8 +88,12 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     func mapView(mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
         if control == view.rightCalloutAccessoryView {
             let app = UIApplication.sharedApplication()
-            let urlString = view.annotation!.subtitle!!
+            var urlString = view.annotation!.subtitle!!
 
+            if !urlString.hasPrefix("http") {
+                urlString = "http://\(urlString)"
+            }
+            
             guard let url = NSURL(string: urlString) where app.canOpenURL(url) else {
                 showAlert("", message: "Invalid URL")
                 return
@@ -149,6 +155,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         refreshButton.enabled = !refreshButton.enabled
         logoutButton.enabled = !logoutButton.enabled
         postLocationButton.enabled = !postLocationButton.enabled        
+        
         tabBarController!.tabBar.userInteractionEnabled = !tabBarController!.tabBar.userInteractionEnabled
         view.userInteractionEnabled = !view.userInteractionEnabled
     }

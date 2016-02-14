@@ -12,10 +12,17 @@ import MapKit
 class PostURLViewController: UIViewController, UITextFieldDelegate, MKMapViewDelegate {
     
     var location: CLLocation!
+    var mapString: String!
     
     @IBOutlet weak var topView: UIView!
     @IBOutlet weak var URLTextField: UITextField!
     @IBOutlet weak var mapView: MKMapView!
+    
+    @IBOutlet weak var cancelButton: UIButton!
+    @IBOutlet weak var postButton: UIButton!
+    
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -67,13 +74,8 @@ class PostURLViewController: UIViewController, UITextFieldDelegate, MKMapViewDel
     }
     
     func textFieldDidEndEditing(textField: UITextField) {
-        
         if !textField.text!.hasPrefix("http://") {
             textField.text = "http://\(textField.text!)"
-        }
-    
-        if !textField.text!.hasSuffix(".com") {
-            textField.text = "\(textField.text!).com"
         }
     }
     
@@ -82,7 +84,56 @@ class PostURLViewController: UIViewController, UITextFieldDelegate, MKMapViewDel
         dismissViewControllerAnimated(true, completion: nil)
     }
     
+    @IBAction func postLocation(sender: AnyObject) {
+        URLTextField.resignFirstResponder()
+        
+        toggleUI()
+        
+        let app = UIApplication.sharedApplication()
+        guard let text = URLTextField.text, url = NSURL(string: text) where app.canOpenURL(url) else {
+            toggleUI()
+            // Notify the user to enter a URL.
+            showAlert("", message: "Please enter a valid URL")
+            
+            return
+        }
+        
+        let jsonBody: [String: AnyObject] = [
+            ParseClient.JSONBodyKeys.FirstName: UdacityClient.StudentInfoResponse.FirstName,
+            ParseClient.JSONBodyKeys.LastName: UdacityClient.StudentInfoResponse.LastName,
+            ParseClient.JSONBodyKeys.Latitude: location.coordinate.latitude,
+            ParseClient.JSONBodyKeys.Longitude: location.coordinate.longitude,
+            ParseClient.JSONBodyKeys.MapString: mapString,
+            ParseClient.JSONBodyKeys.MediaURL: URLTextField.text!,
+            ParseClient.JSONBodyKeys.UniqueKey: UdacityClient.StudentInfoResponse.SessionID
+        ]
+                
+        ParseClient.sharedInstance().postStudentLocation(jsonBody) { (success, result, error) -> Void in
+            
+            // Check if there were any errors. i.e network
+            guard (error == nil) else {
+                self.toggleUI()
+                self.showAlert("Post", message: error!.localizedDescription)
+                return
+            }
+            
+            if success {
+                self.dismissViewControllerAnimated(true, completion: nil)
+            }
+
+            self.toggleUI()
+        }
+    }
+    
+    
     // MARK: - Helper methods
+    func toggleUI() {
+        activityIndicator.isAnimating() ? activityIndicator.stopAnimating(): activityIndicator.startAnimating()
+        URLTextField.enabled = !URLTextField.enabled
+        cancelButton.enabled = !cancelButton.enabled
+        postButton.enabled = !postButton.enabled
+    }
+    
     func pinOnMap() {
         let pointAnnotation = MKPointAnnotation()
         pointAnnotation.coordinate = location.coordinate
@@ -97,4 +148,12 @@ class PostURLViewController: UIViewController, UITextFieldDelegate, MKMapViewDel
         mapView.setRegion(region, animated: true)
         mapView.addAnnotation(pointAnnotation)
     }
+    
+    func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .Alert)
+        alert.addAction(UIAlertAction(title: "Ok", style: .Default, handler: nil))
+        
+        presentViewController(alert, animated: true, completion: nil)
+    }
+
 }
