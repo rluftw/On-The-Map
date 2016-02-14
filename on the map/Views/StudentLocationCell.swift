@@ -18,6 +18,6 @@ class StudentLocationCell: UITableViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         
-        backgroundColor = UIColor(patternImage: UIImage(named: "school/school")!)
+        backgroundColor = UIColor(patternImage: UIImage(named: "school")!)
     }
 }
