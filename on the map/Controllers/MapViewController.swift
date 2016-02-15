@@ -12,7 +12,7 @@ import MapKit
 class MapViewController: UIViewController, MKMapViewDelegate {
     
     var studentsInfo: [StudentInfo] {
-        return (UIApplication.sharedApplication().delegate as! AppDelegate).students
+        return AllStudentsInfo.sharedInstance().infos
     }
     
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
@@ -52,7 +52,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
             
             if success {
                 // Clear the students array and dismiss
-                (UIApplication.sharedApplication().delegate as! AppDelegate).students = [StudentInfo]()
+                AllStudentsInfo.sharedInstance().infos.removeAll()
                 self.dismissViewControllerAnimated(true, completion: nil)
             }
 
@@ -134,8 +134,8 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         }
     }
     
-    func pinThePinsOnTheMap() {
-        let students = (UIApplication.sharedApplication().delegate as! AppDelegate).students
+    func pinThePinsOnTheMap() {        
+        let students = AllStudentsInfo.sharedInstance().infos
         var annotations: [MKPointAnnotation]!
         if students.count > 0 {
             annotations = [MKPointAnnotation]()

@@ -11,7 +11,14 @@ import UIKit
 
 extension ParseClient {
     func getStudentLocations(completionHandler: ((success: Bool, result: AnyObject!, error: NSError?) -> Void)) {
-        taskForGetMethod(Methods.StudentLocation, parameters: nil) { (success, result, error) -> Void in
+        
+        // Always sort by the key updatedAt with a limit of 100 results
+        let parameters = [
+            ParameterKeys.Limit: 100,
+            ParameterKeys.Order: "-updatedAt"
+        ]
+        
+        taskForGetMethod(Methods.StudentLocation, parameters: parameters) { (success, result, error) -> Void in
             // Check for any errors first
             guard (error == nil) else {
                 self.executeCompletionHandler(success, result: result, error: error, completionHandler: completionHandler)
@@ -20,8 +27,7 @@ extension ParseClient {
             
             // Make sure this request was successful before parsing the result
             if success {
-                let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-                appDelegate.students = [StudentInfo]()
+                AllStudentsInfo.sharedInstance().infos.removeAll()
                 
                 self.prepareResults(result)
             }
@@ -60,7 +66,7 @@ extension ParseClient {
         
         results.forEach { (student) -> () in
             let studentObj = StudentInfo(studentDict: student)
-            (UIApplication.sharedApplication().delegate as! AppDelegate).students.append(studentObj)
+            AllStudentsInfo.sharedInstance().infos.append(studentObj)
         }
     }
 }

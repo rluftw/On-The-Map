@@ -15,7 +15,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
-    var students = [StudentInfo]()
     var loginManager: FBSDKLoginManager!
     
     // MARK: - Appdelegate methods

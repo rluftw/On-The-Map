@@ -16,7 +16,7 @@ class StudentLocationTableViewController: UITableViewController {
     @IBOutlet weak var postLocationButton: UIBarButtonItem!
     
     var students: [StudentInfo] {
-        return (UIApplication.sharedApplication().delegate as! AppDelegate).students
+        return AllStudentsInfo.sharedInstance().infos
     }
     
     // MARK: - Viewcontroller Lifecycle
@@ -53,10 +53,11 @@ class StudentLocationTableViewController: UITableViewController {
     }
 
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        
         let app = UIApplication.sharedApplication()
-        let students = (app.delegate as! AppDelegate).students
-        let student = students[indexPath.row]
-        var urlString = student.mediaURL
+        let studentsInfo = AllStudentsInfo.sharedInstance().infos
+        let info = studentsInfo[indexPath.row]
+        var urlString = info.mediaURL
         
         if !urlString.hasPrefix("http") {
             urlString = "http://\(urlString)"
@@ -86,8 +87,8 @@ class StudentLocationTableViewController: UITableViewController {
             }
             
             if success {
-                // Clear the students array and dismiss
-                (UIApplication.sharedApplication().delegate as! AppDelegate).students = [StudentInfo]()
+                // Clear the students array and dismiss                
+                AllStudentsInfo.sharedInstance().infos.removeAll()
                 self.dismissViewControllerAnimated(true, completion: nil)
             }
             
