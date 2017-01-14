@@ -13,17 +13,17 @@ import UIKit
 extension UdacityClient {
     // MARK - Authentication
     
-    func login(token: String = "", username: String = "", password: String = "", completionHandler: ((success: Bool, result: AnyObject!, error: NSError?) -> Void)) {
+    func login(_ token: String = "", username: String = "", password: String = "", completionHandler: @escaping ((_ success: Bool, _ result: AnyObject?, _ error: NSError?) -> Void)) {
         
         var jsonBody: [String: AnyObject]!
         
         // If there's no facebook token, use regular login
         if token == "" {
             let userinfo : [String: String] =  [JSONBodyKeys.Username : username, JSONBodyKeys.Password : password]
-            jsonBody = [JSONBodyKeys.Domain: userinfo]
+            jsonBody = [JSONBodyKeys.Domain: userinfo as AnyObject]
         } else {
             let accessTokenDict: [String: String] = [JSONBodyKeys.AccessToken: token]
-            jsonBody = [JSONBodyKeys.FacebookMobile: accessTokenDict]
+            jsonBody = [JSONBodyKeys.FacebookMobile: accessTokenDict as AnyObject]
         }
 
         // Call the task to be performed
@@ -40,7 +40,7 @@ extension UdacityClient {
             }
             
             // Store ID
-            if let account = result[JSONResponseKeys.Account] as? [String: AnyObject] {
+            if let account = result?[JSONResponseKeys.Account] as? [String: AnyObject] {
                 StudentInfoResponse.SessionID = account[JSONResponseKeys.AccountKey] as! String
             }
             
@@ -51,7 +51,7 @@ extension UdacityClient {
         }
     }
     
-    func logout(completionHandler: ((success: Bool, result: AnyObject!, error: NSError?) -> Void)) {
+    func logout(_ completionHandler: @escaping ((_ success: Bool, _ result: AnyObject?, _ error: NSError?) -> Void)) {
         taskForDELETEMethod(Methods.Session) { (success, result, error) -> Void in
             
             // Check for any errors first
@@ -69,16 +69,16 @@ extension UdacityClient {
     
             // Log out current facebook session.
             
-            if (UIApplication.sharedApplication().delegate as! AppDelegate).loginManager != nil {
-                (UIApplication.sharedApplication().delegate as! AppDelegate).loginManager.logOut()
-                (UIApplication.sharedApplication().delegate as! AppDelegate).loginManager = nil
+            if (UIApplication.shared.delegate as! AppDelegate).loginManager != nil {
+                (UIApplication.shared.delegate as! AppDelegate).loginManager.logOut()
+                (UIApplication.shared.delegate as! AppDelegate).loginManager = nil
             }
             
             self.executeCompletionHandler(success, result: result, error: error, completionHandler: completionHandler)
         }
     }
     
-    func getUserPublicData(completionHandler: ((success: Bool, result: AnyObject!, error: NSError?) -> Void)) {
+    func getUserPublicData(_ completionHandler: @escaping ((_ success: Bool, _ result: AnyObject?, _ error: NSError?) -> Void)) {
         let method = replacePlaceHolderInMethod(Methods.UserData, withKey: URLKeys.UserID, value: StudentInfoResponse.SessionID)
     
         taskForGETRequest(method) { (success, result, error) -> Void in
@@ -90,7 +90,7 @@ extension UdacityClient {
             }
             
             // Store first name and last name
-            if let account = result[JSONResponseKeys.User] as? [String: AnyObject] {
+            if let account = result?[JSONResponseKeys.User] as? [String: AnyObject] {
                 StudentInfoResponse.FirstName = account[JSONResponseKeys.FirstName] as! String
                 StudentInfoResponse.LastName = account[JSONResponseKeys.LastName] as! String
             }
@@ -101,9 +101,9 @@ extension UdacityClient {
     
     // MARK: - Helper methods
     
-    func executeCompletionHandler(success: Bool, result: AnyObject!, error: NSError? ,completionHandler: ((success: Bool, result: AnyObject!, error: NSError?) -> Void)) {
-        dispatch_async(dispatch_get_main_queue(), { () -> Void in
-            completionHandler(success: success, result: result, error: error)
+    func executeCompletionHandler(_ success: Bool, result: AnyObject!, error: NSError? ,completionHandler: @escaping ((_ success: Bool, _ result: AnyObject?, _ error: NSError?) -> Void)) {
+        DispatchQueue.main.async(execute: { () -> Void in
+            completionHandler(success, result, error)
         })
     }
 }

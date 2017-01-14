@@ -9,10 +9,10 @@
 import Foundation
 
 class ParseClient {
-    let session: NSURLSession
+    let session: URLSession!
     
     init() {
-        session = NSURLSession.sharedSession()
+        session = URLSession.shared
     }
 
     class func sharedInstance() -> ParseClient {
@@ -27,19 +27,21 @@ extension ParseClient {
     // MARK: - HTTP Request
     
     // To gather student locations
-    func taskForGetMethod(method: String, parameters:[String: AnyObject]?, getRequestCompletionHandler: (success: Bool, result: AnyObject!, error: NSError?) -> Void) -> NSURLSessionDataTask {
+    func taskForGetMethod(_ method: String, parameters:[String: Any]?, getRequestCompletionHandler: @escaping (_ success: Bool, _ result: Any?, _ error: NSError?) -> Void) -> URLSessionDataTask {
         
         // Make the parse request
-        let request = NSMutableURLRequest(URL: parseURLWithMethod(method, parameters: parameters))
+        var request = URLRequest(url: parseURLWithMethod(method, parameters: parameters))
         request.addValue(Constants.ApplicationID, forHTTPHeaderField: ParseHTTPHeaderField.ApplicationID)
         request.addValue(Constants.APIKey, forHTTPHeaderField: ParseHTTPHeaderField.APIKey)
         
+        let mutableRequest = NSURLRequest()
+        
         // Build the task
-        let task = session.dataTaskWithRequest(request) { (data, response, error) -> Void in
-            func sendError(error: String) {
+        let task = self.session.dataTask(with: request, completionHandler: { (data, response, error) -> Void in
+            func sendError(_ error: String) {
                 print(error)
                 let userInfo = [NSLocalizedDescriptionKey: error]
-                getRequestCompletionHandler(success: false, result: nil, error: NSError(domain: "taskForGetMethod", code: 1, userInfo: userInfo))
+                getRequestCompletionHandler(false, nil, NSError(domain: "taskForGetMethod", code: 1, userInfo: userInfo))
             }
             
             // Check if there's an error
@@ -49,8 +51,8 @@ extension ParseClient {
             }
             
             // Check for a valid response type (2XX)
-            guard let statusCode = (response as? NSHTTPURLResponse)?.statusCode where statusCode <= 299 && statusCode >= 200 else {
-                print("Your request returned a status code other than 2xx!")
+            guard let statusCode = (response as? HTTPURLResponse)?.statusCode, statusCode <= 299 && statusCode >= 200 else {
+                print("Your request returned a status code other than 2xx! - \((response as! HTTPURLResponse).statusCode)")
                 sendError("Failed to load")
                 return
             }
@@ -63,7 +65,7 @@ extension ParseClient {
             
             self.parseJSONWithCompletionHandler(data, completionHandler: getRequestCompletionHandler)
             self.postNotification("StudentInfoLoadComplete")
-        }
+        }) 
 
         // Start the task
         task.resume()
@@ -72,22 +74,22 @@ extension ParseClient {
     }
     
     // To post a student location
-    func taskForPostMethod(method: String, jsonBody: [String: AnyObject], postRequestCompletionHandler: (success: Bool, result: AnyObject!, error: NSError?) -> Void) -> NSURLSessionDataTask {
-        let request = NSMutableURLRequest(URL: parseURLWithMethod(method, parameters: nil))
-        request.HTTPMethod = "POST"
+    func taskForPostMethod(_ method: String, jsonBody: [String: Any], postRequestCompletionHandler: @escaping (_ success: Bool, _ result: Any?, _ error: NSError?) -> Void) -> URLSessionDataTask {
+        var request = URLRequest(url: parseURLWithMethod(method, parameters: nil))
+        request.httpMethod = "POST"
         request.addValue(Constants.APIKey, forHTTPHeaderField: ParseHTTPHeaderField.APIKey)
         request.addValue(Constants.ApplicationID, forHTTPHeaderField: ParseHTTPHeaderField.ApplicationID)
         
         do {
-            request.HTTPBody = try? NSJSONSerialization.dataWithJSONObject(jsonBody, options: .PrettyPrinted)
+            request.httpBody = try? JSONSerialization.data(withJSONObject: jsonBody, options: .prettyPrinted)
         }
         
         // Build the task
-        let task = session.dataTaskWithRequest(request) { (data, response, error) -> Void in
-            func sendError(error: String) {
+        let task = session.dataTask(with: request, completionHandler: { (data, response, error) -> Void in
+            func sendError(_ error: String) {
                 print(error)
                 let userInfo = [NSLocalizedDescriptionKey: error]
-                postRequestCompletionHandler(success: false, result: nil, error: NSError(domain: "taskForGetMethod", code: 1, userInfo: userInfo))
+                postRequestCompletionHandler(false, nil, NSError(domain: "taskForGetMethod", code: 1, userInfo: userInfo))
             }
             
             // Check if there's an error
@@ -97,7 +99,7 @@ extension ParseClient {
             }
             
             // Check for a valid response type (2XX)
-            guard let statusCode = (response as? NSHTTPURLResponse)?.statusCode where statusCode <= 299 && statusCode >= 200 else {
+            guard let statusCode = (response as? HTTPURLResponse)?.statusCode, statusCode <= 299 && statusCode >= 200 else {
                 print("Your request returned a status code other than 2xx!")
                 sendError("Failed to post")
                 return
@@ -110,7 +112,7 @@ extension ParseClient {
             }
             
             self.parseJSONWithCompletionHandler(data, completionHandler: postRequestCompletionHandler)
-        }
+        }) 
         
         task.resume()
         
@@ -120,43 +122,43 @@ extension ParseClient {
     
     // MARK: - Helper methods
     
-    func parseURLWithMethod(method: String?, parameters: [String: AnyObject]?) -> NSURL {
-        let components = NSURLComponents()
+    func parseURLWithMethod(_ method: String?, parameters: [String: Any]?) -> URL {
+        var components = URLComponents()
         components.scheme = Constants.Scheme
         components.host = Constants.Host
         components.path = Constants.Path + (method ?? "")
         
         // No parameters? return here.
         guard let parameters = parameters else {
-            return components.URL!
+            return components.url!
         }
         
-        components.queryItems = [NSURLQueryItem]()
+        components.queryItems = [URLQueryItem]()
         
         for (key, value) in parameters {
-            let queryItem = NSURLQueryItem(name: key, value: "\(value)")
+            let queryItem = URLQueryItem(name: key, value: "\(value)")
             components.queryItems!.append(queryItem)
         }
         
-        return components.URL!
+        return components.url!
     }
     
-    func parseJSONWithCompletionHandler(data: NSData, completionHandler: (success: Bool, result: AnyObject!, error: NSError?) -> Void) {
-        var parsedResults: AnyObject!
+    func parseJSONWithCompletionHandler(_ data: Data, completionHandler: (_ success: Bool, _ result: Any?, _ error: NSError?) -> Void) {
+        var parsedResults: Any!
         do {
-            parsedResults = try NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments)
+            parsedResults = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
         } catch {
             let userInfo = [NSLocalizedDescriptionKey : "Could not parse the data as JSON: '\(data)'"]
-            completionHandler(success: false, result: nil, error: NSError(domain: "parseJSONWithCompletionHandler", code: 1, userInfo: userInfo))
+            completionHandler(false, nil, NSError(domain: "parseJSONWithCompletionHandler", code: 1, userInfo: userInfo))
         }
         
-        completionHandler(success: true, result: parsedResults, error: nil)
+        completionHandler(true, parsedResults, nil)
     }
     
     // Notify the controller that something has updated.
-    func postNotification(notificationName: String) {
-        dispatch_async(dispatch_get_main_queue(), { () -> Void in
-            NSNotificationCenter.defaultCenter().postNotificationName(notificationName, object: nil, userInfo: nil)
+    func postNotification(_ notificationName: String) {
+        DispatchQueue.main.async(execute: { () -> Void in
+            NotificationCenter.default.post(name: Notification.Name(rawValue: notificationName), object: nil, userInfo: nil)
         })
     }
 }

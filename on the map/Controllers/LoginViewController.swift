@@ -26,12 +26,12 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         usernameTextField.delegate = self
         passwordTextField.delegate = self
         
-        facebookLoginButton.addTarget(self, action: "loginWithFB", forControlEvents: .TouchUpInside)
+        facebookLoginButton.addTarget(self, action: #selector(LoginViewController.loginWithFB), for: .touchUpInside)
     }
     
     // MARK: - Textfield Delegates
     
-    func textFieldShouldReturn(textField: UITextField) -> Bool {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         
         return true
@@ -39,7 +39,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     
     // MARK: - IBAction methods
     
-    @IBAction func login(sender: UIButton) {
+    @IBAction func login(_ sender: UIButton) {
         view.endEditing(true)
         
         if usernameTextField.text == "" || passwordTextField.text == "" {
@@ -69,21 +69,21 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         
         toggleUI()
         
-        (UIApplication.sharedApplication().delegate as! AppDelegate).loginManager = FBSDKLoginManager()
-        let loginManager = (UIApplication.sharedApplication().delegate as! AppDelegate).loginManager
+        (UIApplication.shared.delegate as! AppDelegate).loginManager = FBSDKLoginManager()
+        let loginManager = (UIApplication.shared.delegate as! AppDelegate).loginManager
 
-        loginManager.logInWithReadPermissions(["public_profile"], fromViewController: self) { (result, error) -> Void in
+        loginManager?.logIn(withReadPermissions: ["public_profile"], from: self) { (result, error) -> Void in
             guard error == nil else {
-                print("Process error, \(error.localizedDescription)")
+                print("Process error, \(error?.localizedDescription)")
                 self.toggleUI()
                 return
             }
             
-            if result.isCancelled {
+            if (result?.isCancelled)! {
                 self.showAlert("Login", message: "Facebook authorization failed")
                 self.toggleUI()
             } else {
-                let tokenString = result.token.tokenString
+                let tokenString = result?.token.tokenString ?? ""
                 UdacityClient.sharedInstance().login(tokenString, completionHandler: { (success, result, error) -> Void in
                     if success {
                         self.getUserPublicData()
@@ -104,8 +104,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         UdacityClient.sharedInstance().getUserPublicData({ (success, result, error) -> Void in
             if success {
                 self.toggleUI()
-                let tabBarController = self.storyboard?.instantiateViewControllerWithIdentifier("MapAndTableView") as! UITabBarController
-                self.presentViewController(tabBarController, animated: true, completion: nil)
+                let tabBarController = self.storyboard?.instantiateViewController(withIdentifier: "MapAndTableView") as! UITabBarController
+                self.present(tabBarController, animated: true, completion: nil)
             } else {
                 self.toggleUI()
                 self.showAlert("Login", message: error!.localizedDescription)
@@ -115,17 +115,17 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     }
     
     func toggleUI() {
-        activityIndicator.isAnimating() ? activityIndicator.stopAnimating(): activityIndicator.startAnimating()
-        loginButton.enabled = !loginButton.enabled
-        usernameTextField.enabled = !usernameTextField.enabled
-        passwordTextField.enabled = !passwordTextField.enabled
-        facebookLoginButton.enabled = !facebookLoginButton.enabled
+        activityIndicator.isAnimating ? activityIndicator.stopAnimating(): activityIndicator.startAnimating()
+        loginButton.isEnabled = !loginButton.isEnabled
+        usernameTextField.isEnabled = !usernameTextField.isEnabled
+        passwordTextField.isEnabled = !passwordTextField.isEnabled
+        facebookLoginButton.isEnabled = !facebookLoginButton.isEnabled
     }
     
-    func showAlert(title: String, message: String) {
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .Alert)
-        alert.addAction(UIAlertAction(title: "Ok", style: .Default, handler: nil))
+    func showAlert(_ title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
         
-        presentViewController(alert, animated: true, completion: nil)
+        present(alert, animated: true, completion: nil)
     }
 }

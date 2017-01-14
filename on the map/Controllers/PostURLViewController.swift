@@ -30,30 +30,30 @@ class PostURLViewController: UIViewController, UITextFieldDelegate, MKMapViewDel
         URLTextField.delegate = self
         
         URLTextField.frame.size.height = 0
-        URLTextField.transform = CGAffineTransformMakeScale(0.1, 0.1)
+        URLTextField.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
 
         // Place the location on the map
         pinOnMap()
     }
 
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        UIView.animateWithDuration(1.0, delay: 0.0, usingSpringWithDamping: 0.2, initialSpringVelocity: 10.0, options: [], animations: { () -> Void in
-                self.URLTextField.transform = CGAffineTransformIdentity
+        UIView.animate(withDuration: 1.0, delay: 0.0, usingSpringWithDamping: 0.2, initialSpringVelocity: 10.0, options: [], animations: { () -> Void in
+                self.URLTextField.transform = CGAffineTransform.identity
             }, completion: nil)
     }
     
     // MARK: - Mapview delegate methods
     
-    func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         let reuseIndentifier = "pin"
         
-        var pinView = mapView.dequeueReusableAnnotationViewWithIdentifier(reuseIndentifier) as? MKPinAnnotationView
+        var pinView = mapView.dequeueReusableAnnotationView(withIdentifier: reuseIndentifier) as? MKPinAnnotationView
         if pinView == nil {
             pinView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: reuseIndentifier)
             pinView!.pinTintColor = UIColor(red: 1.0, green: 158/255.0, blue: 0.0, alpha: 1.0)
-            pinView!.rightCalloutAccessoryView = UIButton(type: .DetailDisclosure)
+            pinView!.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
         } else {
             pinView!.annotation = annotation
         }
@@ -63,34 +63,34 @@ class PostURLViewController: UIViewController, UITextFieldDelegate, MKMapViewDel
     
     
     // MARK: - TextField delegate methods
-    func textFieldShouldReturn(textField: UITextField) -> Bool {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         
         return true
     }
     
-    func textFieldDidBeginEditing(textField: UITextField) {
+    func textFieldDidBeginEditing(_ textField: UITextField) {
         textField.text = "http://"
     }
     
-    func textFieldDidEndEditing(textField: UITextField) {
+    func textFieldDidEndEditing(_ textField: UITextField) {
         if !textField.text!.hasPrefix("http") {
             textField.text = "http://\(textField.text!)"
         }
     }
     
     // MARK: - IBAction methods
-    @IBAction func cancel(sender: AnyObject) {
-        dismissViewControllerAnimated(true, completion: nil)
+    @IBAction func cancel(_ sender: AnyObject) {
+        dismiss(animated: true, completion: nil)
     }
     
-    @IBAction func postLocation(sender: AnyObject) {
+    @IBAction func postLocation(_ sender: AnyObject) {
         view.endEditing(true)
         
         toggleUI()
         
-        let app = UIApplication.sharedApplication()
-        guard let text = URLTextField.text, url = NSURL(string: text) where app.canOpenURL(url) else {
+        let app = UIApplication.shared
+        guard let text = URLTextField.text, let url = URL(string: text), app.canOpenURL(url) else {
             toggleUI()
             // Notify the user to enter a URL.
             showAlert("", message: "Please enter a valid URL")
@@ -99,13 +99,13 @@ class PostURLViewController: UIViewController, UITextFieldDelegate, MKMapViewDel
         }
         
         let jsonBody: [String: AnyObject] = [
-            ParseClient.JSONBodyKeys.FirstName: UdacityClient.StudentInfoResponse.FirstName,
-            ParseClient.JSONBodyKeys.LastName: UdacityClient.StudentInfoResponse.LastName,
-            ParseClient.JSONBodyKeys.Latitude: location.coordinate.latitude,
-            ParseClient.JSONBodyKeys.Longitude: location.coordinate.longitude,
-            ParseClient.JSONBodyKeys.MapString: mapString,
-            ParseClient.JSONBodyKeys.MediaURL: URLTextField.text!,
-            ParseClient.JSONBodyKeys.UniqueKey: UdacityClient.StudentInfoResponse.SessionID
+            ParseClient.JSONBodyKeys.FirstName: UdacityClient.StudentInfoResponse.FirstName as AnyObject,
+            ParseClient.JSONBodyKeys.LastName: UdacityClient.StudentInfoResponse.LastName as AnyObject,
+            ParseClient.JSONBodyKeys.Latitude: location.coordinate.latitude as AnyObject,
+            ParseClient.JSONBodyKeys.Longitude: location.coordinate.longitude as AnyObject,
+            ParseClient.JSONBodyKeys.MapString: mapString as AnyObject,
+            ParseClient.JSONBodyKeys.MediaURL: URLTextField.text! as AnyObject,
+            ParseClient.JSONBodyKeys.UniqueKey: UdacityClient.StudentInfoResponse.SessionID as AnyObject
         ]
                 
         ParseClient.sharedInstance().postStudentLocation(jsonBody) { (success, result, error) -> Void in
@@ -118,7 +118,7 @@ class PostURLViewController: UIViewController, UITextFieldDelegate, MKMapViewDel
             }
             
             if success {
-                self.dismissViewControllerAnimated(true, completion: nil)
+                self.dismiss(animated: true, completion: nil)
             }
 
             self.toggleUI()
@@ -128,12 +128,12 @@ class PostURLViewController: UIViewController, UITextFieldDelegate, MKMapViewDel
     
     // MARK: - Helper methods
     func toggleUI() {
-        activityIndicator.isAnimating() ? activityIndicator.stopAnimating(): activityIndicator.startAnimating()
+        activityIndicator.isAnimating ? activityIndicator.stopAnimating(): activityIndicator.startAnimating()
         
         // enable/disable controls
-        URLTextField.enabled = !URLTextField.enabled
-        cancelButton.enabled = !cancelButton.enabled
-        postButton.enabled = !postButton.enabled
+        URLTextField.isEnabled = !URLTextField.isEnabled
+        cancelButton.isEnabled = !cancelButton.isEnabled
+        postButton.isEnabled = !postButton.isEnabled
         
         // transparency
         
@@ -157,11 +157,11 @@ class PostURLViewController: UIViewController, UITextFieldDelegate, MKMapViewDel
         mapView.camera.pitch = 45
     }
     
-    func showAlert(title: String, message: String) {
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .Alert)
-        alert.addAction(UIAlertAction(title: "Ok", style: .Default, handler: nil))
+    func showAlert(_ title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
         
-        presentViewController(alert, animated: true, completion: nil)
+        present(alert, animated: true, completion: nil)
     }
 
 }

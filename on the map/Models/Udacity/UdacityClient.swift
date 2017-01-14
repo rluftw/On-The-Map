@@ -9,13 +9,13 @@
 import Foundation
 
 class UdacityClient {
-    let session: NSURLSession
+    let session: URLSession
 //    var userID: String!
 //    var firstName: String!
 //    var lastName: String!
     
     init() {
-        session = NSURLSession.sharedSession()
+        session = URLSession.shared
     }
     
     class func sharedInstance() -> UdacityClient {
@@ -32,24 +32,24 @@ extension UdacityClient {
     // MARK: - HTTP Request
     
     // The Udacity login API uses the POST HTTP method which takes a jsonBody and a method
-    func taskForPOSTMethod(method: String, jsonBody: [String: AnyObject], postRequestCompletionHandler: (success: Bool, result: AnyObject!, error: NSError?) -> Void) {
+    func taskForPOSTMethod(_ method: String, jsonBody: [String: AnyObject], postRequestCompletionHandler: @escaping (_ success: Bool, _ result: AnyObject?, _ error: NSError?) -> Void) {
 
         // Create the Request object
-        let request = NSMutableURLRequest(URL: udacityURLWithMethod(method))
-        request.HTTPMethod = "POST"
+        var request = URLRequest(url: udacityURLWithMethod(method))
+        request.httpMethod = "POST"
         request.addValue(DataFormat.JSON, forHTTPHeaderField: HTTPHeaderField.Accept)
         request.addValue(DataFormat.JSON, forHTTPHeaderField: HTTPHeaderField.ContentType)
         
         do {
-            request.HTTPBody = try? NSJSONSerialization.dataWithJSONObject(jsonBody, options: .PrettyPrinted)
+            request.httpBody = try? JSONSerialization.data(withJSONObject: jsonBody, options: .prettyPrinted)
         }
         
         // Build the task
-        let task = session.dataTaskWithRequest(request) { (data, response, error) -> Void in
-            func sendError(error: String) {
+        let task = session.dataTask(with: request, completionHandler: { (data, response, error) -> Void in
+            func sendError(_ error: String) {
                 print(error)
                 let userInfo = [NSLocalizedDescriptionKey: error]
-                postRequestCompletionHandler(success: false, result: nil, error: NSError(domain: "taskForPOSTMethod", code: 1, userInfo: userInfo))
+                postRequestCompletionHandler(false, nil, NSError(domain: "taskForPOSTMethod", code: 1, userInfo: userInfo))
             }
             
             // Check if there's an error
@@ -58,13 +58,13 @@ extension UdacityClient {
                 return
             }
             
-            if let statusCode = (response as? NSHTTPURLResponse)?.statusCode where statusCode >= 400 && statusCode <= 499 {
+            if let statusCode = (response as? HTTPURLResponse)?.statusCode, statusCode >= 400 && statusCode <= 499 {
                 sendError("Invalid Email or Password")
                 return
             }
             
             // Check for a valid response type (2XX)
-            guard let statusCode = (response as? NSHTTPURLResponse)?.statusCode where statusCode <= 299 && statusCode >= 200 else {
+            guard let statusCode = (response as? HTTPURLResponse)?.statusCode, statusCode <= 299 && statusCode >= 200 else {
                 sendError("Your request returned a status code other than 2xx!")
                 return
             }
@@ -77,7 +77,7 @@ extension UdacityClient {
             
             // Work with the data
             self.parseJSONWithCompletionHandler(data, completionHandler: postRequestCompletionHandler)
-        }
+        }) 
         
         // Start the task
         task.resume()
@@ -85,18 +85,18 @@ extension UdacityClient {
     
 
     // The Udacity logout API uses the DELETE http method which takes only a method
-    func taskForDELETEMethod(method: String, deleteRequestCompletionHandler: (success: Bool, result: AnyObject!, error: NSError?) -> Void) -> NSURLSessionDataTask {
+    func taskForDELETEMethod(_ method: String, deleteRequestCompletionHandler: @escaping (_ success: Bool, _ result: AnyObject?, _ error: NSError?) -> Void) -> URLSessionDataTask {
         // Create the Request object
-        let request = NSMutableURLRequest(URL: udacityURLWithMethod(method))
-        request.HTTPMethod = "DELETE"
+        var request = URLRequest(url: udacityURLWithMethod(method))
+        request.httpMethod = "DELETE"
         
         // Retrieve the shared cookie storage instance.
-        let sharedCookieStorage = NSHTTPCookieStorage.sharedHTTPCookieStorage()
+        let sharedCookieStorage = HTTPCookieStorage.shared
         
         // Get all the cookies (mmm... yum cookies) and find the index of the "XSRF-TOKEN" token
         let cookies = sharedCookieStorage.cookies!
-        var xsrfCookie: NSHTTPCookie?
-        if let xsrfCookieIndex = cookies.indexOf({ (cookie) -> Bool in cookie.name == "XSRF-TOKEN" }) {
+        var xsrfCookie: HTTPCookie?
+        if let xsrfCookieIndex = cookies.index(where: { (cookie) -> Bool in cookie.name == "XSRF-TOKEN" }) {
             xsrfCookie = cookies[xsrfCookieIndex]
             
             // If the XSRF-TOKEN cookie is found, then add it onto the request
@@ -104,11 +104,11 @@ extension UdacityClient {
         }
         
         // Build the task
-        let task = session.dataTaskWithRequest(request) { (data, response, error) -> Void in
-            func sendError(error: String) {
+        let task = session.dataTask(with: request, completionHandler: { (data, response, error) -> Void in
+            func sendError(_ error: String) {
                 print(error)
                 let userInfo = [NSLocalizedDescriptionKey: error]
-                deleteRequestCompletionHandler(success: false, result: nil, error: NSError(domain: "taskForDELETEMethod", code: 1, userInfo: userInfo))
+                deleteRequestCompletionHandler(false, nil, NSError(domain: "taskForDELETEMethod", code: 1, userInfo: userInfo))
             }
 
             
@@ -119,7 +119,7 @@ extension UdacityClient {
             }
             
             // Check for a valid response type (2XX)
-            guard let statusCode = (response as? NSHTTPURLResponse)?.statusCode where statusCode <= 299 && statusCode >= 200 else {
+            guard let statusCode = (response as? HTTPURLResponse)?.statusCode, statusCode <= 299 && statusCode >= 200 else {
                 sendError("Your request returned a status code other than 2xx!")
                 return
             }
@@ -132,7 +132,7 @@ extension UdacityClient {
             
             // Work with the data
             self.parseJSONWithCompletionHandler(data, completionHandler: deleteRequestCompletionHandler)
-        }
+        }) 
         
         // Start the task
         task.resume()
@@ -141,19 +141,19 @@ extension UdacityClient {
     }
     
     // The Udacity logout API uses the GET http method which takes only a method (the method may need substitution)
-    func taskForGETRequest(method: String, getRequestCompletionHandler: (success: Bool, result: AnyObject!, error: NSError?) -> Void) {
+    func taskForGETRequest(_ method: String, getRequestCompletionHandler: @escaping (_ success: Bool, _ result: AnyObject?, _ error: NSError?) -> Void) {
         
         // Create the Request object
-        let request = NSMutableURLRequest(URL: udacityURLWithMethod(replacePlaceHolderInMethod(Methods.UserData, withKey: URLKeys.UserID, value: StudentInfoResponse.SessionID)))
+        var request = URLRequest(url: udacityURLWithMethod(replacePlaceHolderInMethod(Methods.UserData, withKey: URLKeys.UserID, value: StudentInfoResponse.SessionID)))
         
         print(request)
         
         // Build the task
-        let task = session.dataTaskWithRequest(request) { (data, response, error) -> Void in
-            func sendError(error: String) {
+        let task = session.dataTask(with: request, completionHandler: { (data, response, error) -> Void in
+            func sendError(_ error: String) {
                 print(error)
                 let userInfo = [NSLocalizedDescriptionKey: error]
-                getRequestCompletionHandler(success: false, result: nil, error: NSError(domain: "taskForGETMethod", code: 1, userInfo: userInfo))
+                getRequestCompletionHandler(false, nil, NSError(domain: "taskForGETMethod", code: 1, userInfo: userInfo))
             }
             
             // Check if there's an error
@@ -163,7 +163,7 @@ extension UdacityClient {
             }
             
             // Check for a valid response type (2XX)
-            guard let statusCode = (response as? NSHTTPURLResponse)?.statusCode where statusCode <= 299 && statusCode >= 200 else {
+            guard let statusCode = (response as? HTTPURLResponse)?.statusCode, statusCode <= 299 && statusCode >= 200 else {
                 sendError("Your request returned a status code other than 2xx!")
                 return
             }
@@ -176,7 +176,7 @@ extension UdacityClient {
             
             // Work with the data
             self.parseJSONWithCompletionHandler(data, completionHandler: getRequestCompletionHandler)
-        }
+        }) 
         
         task.resume()
     }
@@ -184,46 +184,48 @@ extension UdacityClient {
     // MARK: - Helper methods
     
     // None of the API takes in parameters, therefore the 'parameters' parameter is omitted
-    func udacityURLWithMethod(method: String?) -> NSURL {
-        let components = NSURLComponents()
+    func udacityURLWithMethod(_ method: String?) -> URL {
+        var components = URLComponents()
         components.scheme = Constants.Scheme
         components.host = Constants.Host
         components.path = Constants.Path + (method ?? "")
         
-        return components.URL!
+        return components.url!
     }
     
-    func parseJSONWithCompletionHandler(data: NSData, completionHandler: (success: Bool, result: AnyObject!, error: NSError?) -> Void) {
+    func parseJSONWithCompletionHandler(_ data: Data, completionHandler: (_ success: Bool, _ result: AnyObject?, _ error: NSError?) -> Void) {
         var parsedResults: AnyObject!
         do {
             /*
                 All responses from Udacity API skips 5 characters of response
                 This is for security purposes
             */
-            let newData = data.subdataWithRange(NSMakeRange(5, data.length - 5))
-            parsedResults = try NSJSONSerialization.JSONObjectWithData(newData, options: .AllowFragments)
+            if let range = NSMakeRange(5, data.count - 5).toRange() {
+                let newData = data.subdata(in: range)
+                parsedResults = try JSONSerialization.jsonObject(with: newData, options: .allowFragments) as AnyObject!
+            }
         } catch {
             let userInfo = [NSLocalizedDescriptionKey : "Could not parse the data as JSON: '\(data)'"]
-            completionHandler(success: false, result: nil, error: NSError(domain: "parseJSONWithCompletionHandler", code: 1, userInfo: userInfo))
+            completionHandler(false, nil, NSError(domain: "parseJSONWithCompletionHandler", code: 1, userInfo: userInfo))
         }
                 
-        completionHandler(success: true, result: parsedResults, error: nil)
+        completionHandler(true, parsedResults, nil)
     }
     
     // Used for replacing placeholders in methods
     // i.e. user data method - /users/<user_id>
-    func replacePlaceHolderInMethod(method: String, withKey key: String, value: String) -> String {
-        guard let range = method.rangeOfString("<\(key)>") else {
+    func replacePlaceHolderInMethod(_ method: String, withKey key: String, value: String) -> String {
+        guard let range = method.range(of: "<\(key)>") else {
             print("<\(key)> was not found")
             return method
         }
         
-        return method.stringByReplacingCharactersInRange(range, withString: value)
+        return method.replacingCharacters(in: range, with: value)
     }
     
-    func postNotification(notificationName: String) {
-        dispatch_async(dispatch_get_main_queue(), { () -> Void in
-            NSNotificationCenter.defaultCenter().postNotificationName(notificationName, object: nil, userInfo: nil)
+    func postNotification(_ notificationName: String) {
+        DispatchQueue.main.async(execute: { () -> Void in
+            NotificationCenter.default.post(name: Notification.Name(rawValue: notificationName), object: nil, userInfo: nil)
         })
     }
 }

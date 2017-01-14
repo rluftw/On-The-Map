@@ -30,7 +30,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         mapView.delegate = self
     }
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         mapView.alpha = 0.5
         toggleUI()
         
@@ -39,7 +39,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     
     // MARK: - IBAction methods
     
-    @IBAction func logout(sender: AnyObject) {
+    @IBAction func logout(_ sender: AnyObject) {
         toggleUI()
         
         UdacityClient.sharedInstance().logout { (success, result, error) -> Void in
@@ -53,7 +53,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
             if success {
                 // Clear the students array and dismiss
                 AllStudentsInfo.sharedInstance().infos.removeAll()
-                self.dismissViewControllerAnimated(true, completion: nil)
+                self.dismiss(animated: true, completion: nil)
             }
 
             
@@ -61,7 +61,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         }
     }
     
-    @IBAction func refresh(sender: AnyObject) {
+    @IBAction func refresh(_ sender: AnyObject) {
         // Can't be placed onto toggle because the animation completion handler uses a toggle.
         mapView.alpha = 0.5
         
@@ -69,20 +69,20 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         retrieveLocations()
     }
     
-    @IBAction func postLocation(sender: AnyObject) {
+    @IBAction func postLocation(_ sender: AnyObject) {
     }
     
     // MARK: - Mapview delegate methods
     
-    func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         let reuseIndentifier = "pin"
         
-        var pinView = mapView.dequeueReusableAnnotationViewWithIdentifier(reuseIndentifier) as? MKPinAnnotationView
+        var pinView = mapView.dequeueReusableAnnotationView(withIdentifier: reuseIndentifier) as? MKPinAnnotationView
         if pinView == nil {
             pinView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: reuseIndentifier)
             pinView!.canShowCallout = true
             pinView!.pinTintColor = UIColor(red: 1.0, green: 158/255.0, blue: 0.0, alpha: 1.0)
-            pinView!.rightCalloutAccessoryView = UIButton(type: .DetailDisclosure)
+            pinView!.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
         } else {
             pinView!.annotation = annotation
         }
@@ -90,16 +90,16 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         return pinView
     }
     
-    func mapView(mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
+    func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
         if control == view.rightCalloutAccessoryView {
-            let app = UIApplication.sharedApplication()
+            let app = UIApplication.shared
             var urlString = view.annotation!.subtitle!!
 
             if !urlString.hasPrefix("http") {
                 urlString = "http://\(urlString)"
             }
             
-            guard let url = NSURL(string: urlString) where app.canOpenURL(url) else {
+            guard let url = URL(string: urlString), app.canOpenURL(url) else {
                 showAlert("", message: "Invalid URL")
                 return
             }
@@ -156,31 +156,31 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     }
     
     func toggleUI() {
-        activityIndicator.isAnimating() ? self.activityIndicator.stopAnimating(): self.activityIndicator.startAnimating()
+        activityIndicator.isAnimating ? self.activityIndicator.stopAnimating(): self.activityIndicator.startAnimating()
         
         // enable/disable controls
-        refreshButton.enabled = !refreshButton.enabled
-        logoutButton.enabled = !logoutButton.enabled
-        postLocationButton.enabled = !postLocationButton.enabled
+        refreshButton.isEnabled = !refreshButton.isEnabled
+        logoutButton.isEnabled = !logoutButton.isEnabled
+        postLocationButton.isEnabled = !postLocationButton.isEnabled
         
-        tabBarController!.tabBar.userInteractionEnabled = !tabBarController!.tabBar.userInteractionEnabled
-        view.userInteractionEnabled = !view.userInteractionEnabled
+        tabBarController!.tabBar.isUserInteractionEnabled = !tabBarController!.tabBar.isUserInteractionEnabled
+        view.isUserInteractionEnabled = !view.isUserInteractionEnabled
     }
     
     // Allow the map to be ungreyed out.
     func finishLoading() {
-        UIView.animateWithDuration(1.0, animations: { () -> Void in
+        UIView.animate(withDuration: 1.0, animations: { () -> Void in
             self.mapView.alpha = 1.0
-        }) { _ in
+        }, completion: { _ in
             self.toggleUI()
-        }
+        }) 
     }
     
-    func showAlert(title: String, message: String) {
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .Alert)
-        alert.addAction(UIAlertAction(title: "Ok", style: .Default, handler: nil))
+    func showAlert(_ title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
         
-        presentViewController(alert, animated: true, completion: nil)
+        present(alert, animated: true, completion: nil)
     }
     
 }

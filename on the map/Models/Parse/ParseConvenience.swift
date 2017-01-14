@@ -10,15 +10,15 @@ import Foundation
 import UIKit
 
 extension ParseClient {
-    func getStudentLocations(completionHandler: ((success: Bool, result: AnyObject!, error: NSError?) -> Void)) {
+    func getStudentLocations(_ completionHandler: @escaping ((_ success: Bool, _ result: Any?, _ error: NSError?) -> Void)) {
         
         // Always sort by the key updatedAt with a limit of 100 results
         let parameters = [
             ParameterKeys.Limit: 100,
             ParameterKeys.Order: "-updatedAt"
-        ]
+        ] as [String : Any]
         
-        taskForGetMethod(Methods.StudentLocation, parameters: parameters) { (success, result, error) -> Void in
+        _ = taskForGetMethod(Methods.StudentLocation, parameters: parameters) { (success, result, error) -> Void in
             // Check for any errors first
             guard (error == nil) else {
                 self.executeCompletionHandler(success, result: result, error: error, completionHandler: completionHandler)
@@ -29,7 +29,7 @@ extension ParseClient {
             if success {
                 AllStudentsInfo.sharedInstance().infos.removeAll()
                 
-                self.prepareResults(result)
+                self.prepareResults(result as AnyObject)
             }
             
             self.executeCompletionHandler(success, result: result, error: error, completionHandler: completionHandler)
@@ -39,8 +39,8 @@ extension ParseClient {
         }
     }
     
-    func postStudentLocation(jsonBody: [String: AnyObject], completionHandler: ((success: Bool, result: AnyObject!, error: NSError?) -> Void)) {
-        taskForPostMethod(Methods.StudentLocation, jsonBody: jsonBody) { (success, result, error) -> Void in
+    func postStudentLocation(_ jsonBody: [String: AnyObject], completionHandler: @escaping ((_ success: Bool, _ result: Any?, _ error: NSError?) -> Void)) {
+        _ = taskForPostMethod(Methods.StudentLocation, jsonBody: jsonBody) { (success, result, error) -> Void in
             // Check for any errors first
             guard (error == nil) else {
                 self.executeCompletionHandler(success, result: result, error: error, completionHandler: completionHandler)
@@ -52,13 +52,13 @@ extension ParseClient {
     }
     
     // MARK: - Helper methods
-    func executeCompletionHandler(success: Bool, result: AnyObject!, error: NSError?, completionHandler: ((success: Bool, result: AnyObject!, error: NSError?) -> Void)) {
-        dispatch_async(dispatch_get_main_queue(), { () -> Void in
-            completionHandler(success: success, result: result, error: error)
+    func executeCompletionHandler(_ success: Bool, result: Any!, error: NSError?, completionHandler: @escaping ((_ success: Bool, _ result: Any?, _ error: NSError?) -> Void)) {
+        DispatchQueue.main.async(execute: { () -> Void in
+            completionHandler(success, result, error)
         })
     }
     
-    func prepareResults(responseDict: AnyObject) {
+    func prepareResults(_ responseDict: AnyObject) {
         // Result is an array of students
         guard let results = responseDict["results"] as? [AnyObject] else {
             return

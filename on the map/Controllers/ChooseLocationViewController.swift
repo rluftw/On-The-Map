@@ -8,6 +8,30 @@
 
 import UIKit
 import MapKit
+// FIXME: comparison operators with optionals were removed from the Swift Standard Libary.
+// Consider refactoring the code to use the non-optional operators.
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
+
+// FIXME: comparison operators with optionals were removed from the Swift Standard Libary.
+// Consider refactoring the code to use the non-optional operators.
+fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l > r
+  default:
+    return rhs < lhs
+  }
+}
+
 
 class ChooseLocationViewController: UIViewController, UITextFieldDelegate {
 
@@ -27,19 +51,19 @@ class ChooseLocationViewController: UIViewController, UITextFieldDelegate {
         locationTextField.delegate = self
         locationTextField.becomeFirstResponder()
         
-        locationTextField.transform = CGAffineTransformMakeTranslation(-view.frame.width, 0)
+        locationTextField.transform = CGAffineTransform(translationX: -view.frame.width, y: 0)
     }
     
-    override func viewWillAppear(animated: Bool) {
-        UIView.animateWithDuration(1.0, delay: 0.0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1.0, options: [], animations: { () -> Void in
-            self.locationTextField.transform = CGAffineTransformIdentity
+    override func viewWillAppear(_ animated: Bool) {
+        UIView.animate(withDuration: 1.0, delay: 0.0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1.0, options: [], animations: { () -> Void in
+            self.locationTextField.transform = CGAffineTransform.identity
             }, completion: nil)
     }
 
     
     // MARK: - TextField delegate methods
     
-    func textFieldShouldReturn(textField: UITextField) -> Bool {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         
         return true
@@ -47,15 +71,15 @@ class ChooseLocationViewController: UIViewController, UITextFieldDelegate {
     
     // MARK: - IBAction methods
     
-    @IBAction func cancel(sender: AnyObject) {
-        dismissViewControllerAnimated(true, completion: nil)
+    @IBAction func cancel(_ sender: AnyObject) {
+        dismiss(animated: true, completion: nil)
     }
     
-    @IBAction func findOnTheMap(sender: AnyObject) {
+    @IBAction func findOnTheMap(_ sender: AnyObject) {
         view.endEditing(true)
         toggleUI()
         
-        guard let text = locationTextField.text where text != "" else {
+        guard let text = locationTextField.text, text != "" else {
             self.showAlert("", message: "Please enter a location")
             toggleUI()
             return
@@ -71,7 +95,7 @@ class ChooseLocationViewController: UIViewController, UITextFieldDelegate {
             
             if placemarks?.count > 0 {
                 self.location = placemarks!.first!.location!
-                self.performSegueWithIdentifier("postURL", sender: self)
+                self.performSegue(withIdentifier: "postURL", sender: self)
             } else {
                 self.showAlert("", message: "Invalid Location")
             }
@@ -83,17 +107,17 @@ class ChooseLocationViewController: UIViewController, UITextFieldDelegate {
     
     // MARK: - Helper methods
     
-    func showAlert(title: String, message: String) {
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .Alert)
-        alert.addAction(UIAlertAction(title: "Ok", style: .Default, handler: nil))
+    func showAlert(_ title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
         
-        presentViewController(alert, animated: true, completion: nil)
+        present(alert, animated: true, completion: nil)
     }
     
     func toggleUI() {
         // Enable/Disable controls
-        cancelButton.enabled = !cancelButton.enabled
-        findOnMapButton.enabled = !findOnMapButton.enabled
+        cancelButton.isEnabled = !cancelButton.isEnabled
+        findOnMapButton.isEnabled = !findOnMapButton.isEnabled
         
         // Transparency
         titleLabel.alpha = titleLabel.alpha == 1.0 ? 0.5: 1.0
@@ -102,12 +126,12 @@ class ChooseLocationViewController: UIViewController, UITextFieldDelegate {
         mapView.alpha = mapView.alpha == 1.0 ? 0.5: 1.0
         
         // Animation
-        activityIndicator.isAnimating() ? activityIndicator.stopAnimating(): activityIndicator.startAnimating()
+        activityIndicator.isAnimating ? activityIndicator.stopAnimating(): activityIndicator.startAnimating()
     }
     
     // MARK: - Navigation
     
-    override func shouldPerformSegueWithIdentifier(identifier: String, sender: AnyObject?) -> Bool {
+    override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
         guard let _ = location else {
             return false
         }
@@ -115,9 +139,9 @@ class ChooseLocationViewController: UIViewController, UITextFieldDelegate {
         return true
     }
     
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "postURL" {
-            let postURLVC = segue.destinationViewController as! PostURLViewController
+            let postURLVC = segue.destination as! PostURLViewController
             postURLVC.location = location
             postURLVC.mapString = locationTextField.text!
         }

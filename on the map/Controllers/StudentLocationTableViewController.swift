@@ -24,12 +24,12 @@ class StudentLocationTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        tableViewRefreshControl.addTarget(self, action: "refresh", forControlEvents: .ValueChanged)
-        tableView.tableFooterView = UIView(frame: CGRectZero)
+        tableViewRefreshControl.addTarget(self, action: #selector(StudentLocationTableViewController.refresh), for: .valueChanged)
+        tableView.tableFooterView = UIView(frame: CGRect.zero)
         tableView.backgroundColor = UIColor(patternImage: UIImage(named: "wov")!)
     }
 
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
         refresh()
@@ -37,13 +37,13 @@ class StudentLocationTableViewController: UITableViewController {
     
     // MARK: - Table view data source
 
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return students.count
     }
 
     
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("studentLocation", forIndexPath: indexPath) as! StudentLocationCell
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "studentLocation", for: indexPath) as! StudentLocationCell
         let student = students[indexPath.row]
         
         cell.fullNameLabel.text = "\(student.firstName) \(student.lastName)"
@@ -52,9 +52,9 @@ class StudentLocationTableViewController: UITableViewController {
         return cell
     }
 
-    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        let app = UIApplication.sharedApplication()
+        let app = UIApplication.shared
         let studentsInfo = AllStudentsInfo.sharedInstance().infos
         let info = studentsInfo[indexPath.row]
         var urlString = info.mediaURL
@@ -63,19 +63,19 @@ class StudentLocationTableViewController: UITableViewController {
             urlString = "http://\(urlString)"
         }
         
-        guard let url = NSURL(string: urlString) where app.canOpenURL(url) else {
+        guard let url = URL(string: urlString), app.canOpenURL(url) else {
             showAlert("", message: "Invalid URL")
-            tableView.deselectRowAtIndexPath(indexPath, animated: true)
+            tableView.deselectRow(at: indexPath, animated: true)
             return
         }
         
-        tableView.deselectRowAtIndexPath(indexPath, animated: true)
+        tableView.deselectRow(at: indexPath, animated: true)
         app.openURL(url)
     }
     
     // MARK: - IBAction methods
 
-    @IBAction func logout(sender: AnyObject) {
+    @IBAction func logout(_ sender: AnyObject) {
         toggleUI()
         
         UdacityClient.sharedInstance().logout { (success, result, error) -> Void in
@@ -89,14 +89,14 @@ class StudentLocationTableViewController: UITableViewController {
             if success {
                 // Clear the students array and dismiss                
                 AllStudentsInfo.sharedInstance().infos.removeAll()
-                self.dismissViewControllerAnimated(true, completion: nil)
+                self.dismiss(animated: true, completion: nil)
             }
             
             self.toggleUI()
         }
     }
 
-    @IBAction func postLocation(sender: AnyObject) {
+    @IBAction func postLocation(_ sender: AnyObject) {
         refreshControl?.beginRefreshing()
     }
     
@@ -126,7 +126,7 @@ class StudentLocationTableViewController: UITableViewController {
                 self.tableView.reloadData()
             }
             
-            if let refreshing = self.refreshControl?.refreshing where refreshing == true {
+            if let refreshing = self.refreshControl?.isRefreshing, refreshing == true {
                 self.refreshControl?.endRefreshing()
             }
             
@@ -135,29 +135,29 @@ class StudentLocationTableViewController: UITableViewController {
     }
 
     func finishLoading() {
-        UIView.animateWithDuration(1.0, animations: { () -> Void in
+        UIView.animate(withDuration: 1.0, animations: { () -> Void in
             self.tableView.alpha = 1.0
-        }) { _ in
+        }, completion: { _ in
             self.toggleUI()
-        }
+        }) 
     }
     
     func toggleUI() {
-        logoutButton.enabled = !logoutButton.enabled
-        postLocationButton.enabled = !postLocationButton.enabled
-        tabBarController!.tabBar.userInteractionEnabled = !tabBarController!.tabBar.userInteractionEnabled
-        view.userInteractionEnabled = !view.userInteractionEnabled
+        logoutButton.isEnabled = !logoutButton.isEnabled
+        postLocationButton.isEnabled = !postLocationButton.isEnabled
+        tabBarController!.tabBar.isUserInteractionEnabled = !tabBarController!.tabBar.isUserInteractionEnabled
+        view.isUserInteractionEnabled = !view.isUserInteractionEnabled
         
-        if logoutButton.enabled {
+        if logoutButton.isEnabled {
             tableViewRefreshControl.endRefreshing()
         }
     }
     
-    func showAlert(title: String, message: String) {
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .Alert)
-        alert.addAction(UIAlertAction(title: "Ok", style: .Default, handler: nil))
+    func showAlert(_ title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
         
-        presentViewController(alert, animated: true, completion: nil)
+        present(alert, animated: true, completion: nil)
     }
 
 }
